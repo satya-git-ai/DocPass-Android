@@ -1,0 +1,6 @@
+{
+  "name": "DocPass",
+  "description": "Completely offline personal security vault for storing encrypted documents and passwords locally.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

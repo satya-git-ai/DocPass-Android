@@ -1,0 +1,60 @@
+<!-- Script to fetch latest GitHub release -->
+    <script>
+        // REPLACE THESE WITH YOUR GITHUB DETAILS
+        const githubUsername = 'YOUR_GITHUB_USERNAME'; 
+        const githubRepo = 'YOUR_REPOSITORY_NAME'; // e.g., 'DocPass'
+
+        async function fetchLatestRelease() {
+            const apiUrl = `https://api.github.com/repos/${githubUsername}/${githubRepo}/releases/latest`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                
+                // Assuming you are uploading an APK file in your GitHub releases
+                // This finds the first asset (downloadable file) attached to the release
+                let downloadUrl = data.html_url; // Fallback to release page if no assets
+                if (data.assets && data.assets.length > 0) {
+                    downloadUrl = data.assets[0].browser_download_url;
+                }
+
+                // Update the Hero button
+                const heroBtn = document.getElementById('hero-download-btn');
+                const heroText = document.getElementById('hero-btn-text');
+                if(heroBtn) {
+                    heroBtn.href = downloadUrl;
+                    heroText.innerText = 'getnow';
+                }
+
+                // Update the Footer button
+                const footerBtn = document.getElementById('footer-download-btn');
+                const footerText = document.getElementById('footer-btn-text');
+                if(footerBtn) {
+                    footerBtn.href = downloadUrl;
+                    footerText.innerText = 'Get DocPass Now';
+                }
+
+                // Optional: Update the top nav button too if you give it an ID
+                // document.getElementById('nav-download').href = downloadUrl;
+
+            } catch (error) {
+                console.error('Error fetching latest release:', error);
+                
+                // Fallback text if API fails (e.g., rate limit or repo not found)
+                document.getElementById('hero-btn-text').innerText = 'getnow';
+                document.getElementById('footer-btn-text').innerText = 'Get DocPass Now';
+                
+                // Fallback to repo page
+                const repoUrl = `https://github.com/${githubUsername}/${githubRepo}/releases`;
+                document.getElementById('hero-download-btn').href = repoUrl;
+                document.getElementById('footer-download-btn').href = repoUrl;
+            }
+        }
+
+        // Run the function when the page loads
+        document.addEventListener('DOMContentLoaded', fetchLatestRelease);
+    </script>
+</body>
+</html>
