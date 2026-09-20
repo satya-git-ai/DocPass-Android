@@ -128,6 +128,11 @@
         .text-glow {
             text-shadow: 0 0 20px rgba(255,255,255,0.4);
         }
+        
+        /* Utility for gallery image transitions */
+        .zoom-transition {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        }
     </style>
 </head>
 <body class="antialiased min-h-screen flex flex-col relative">
@@ -248,26 +253,27 @@
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4 text-glow">App Interface</h2>
                 <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">Clean, intuitive, and modern design crafted for maximum usability.</p>
+                <p class="text-sm text-pink-300 mt-2 font-medium animate-pulse">Click any image to zoom</p>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
-                <div class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png" alt="Dashboard" class="h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl">
+                <div onclick="openGallery(0)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
+                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png" alt="Dashboard" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
-                <div class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png" alt="Document Vault" class="h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl">
+                <div onclick="openGallery(1)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
+                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png" alt="Document Vault" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
-                <div class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault2.png" alt="Document Entry" class="h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl">
+                <div onclick="openGallery(2)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
+                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault2.png" alt="Document Entry" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
-                <div class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png" alt="Password Vault" class="h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl">
+                <div onclick="openGallery(3)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
+                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png" alt="Password Vault" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
-                <div class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault2.png" alt="Password Entry" class="h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl">
+                <div onclick="openGallery(4)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
+                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault2.png" alt="Password Entry" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
-                <div class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png" alt="Settings" class="h-full object-contain group-hover:scale-105 transition-transform duration-300 drop-shadow-xl">
+                <div onclick="openGallery(5)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
+                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png" alt="Settings" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
             </div>
         </section>
@@ -378,15 +384,43 @@
         </div>
     </div>
 
-    <!-- Script for Modal Logic -->
+    <!-- Image Zoom Gallery Modal -->
+    <div id="galleryModal" onclick="closeGallery()" class="fixed inset-0 z-[110] hidden items-center justify-center bg-slate-900/90 backdrop-blur-md opacity-0 transition-opacity duration-300">
+        <!-- Close Button -->
+        <button onclick="closeGallery()" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-50 p-2">
+            <i class="fa-solid fa-xmark text-3xl"></i>
+        </button>
+
+        <!-- Previous Button -->
+        <button onclick="prevImage(event)" class="absolute left-4 md:left-10 text-white/50 hover:text-white hover:scale-110 transition-all z-50 p-4 bg-white/5 rounded-full hover:bg-white/10">
+            <i class="fa-solid fa-chevron-left text-2xl"></i>
+        </button>
+
+        <!-- Image Container -->
+        <div class="relative flex justify-center items-center h-[85vh] w-[85vw] max-w-5xl pointer-events-none">
+            <img id="galleryImage" src="" alt="Zoomed Interface" class="max-h-full max-w-full object-contain zoom-transition scale-90 opacity-0 rounded-2xl shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
+        </div>
+
+        <!-- Next Button -->
+        <button onclick="nextImage(event)" class="absolute right-4 md:right-10 text-white/50 hover:text-white hover:scale-110 transition-all z-50 p-4 bg-white/5 rounded-full hover:bg-white/10">
+            <i class="fa-solid fa-chevron-right text-2xl"></i>
+        </button>
+        
+        <!-- Image Counter -->
+        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 font-medium tracking-widest text-sm bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">
+            <span id="galleryCounter">1</span> / 6
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script>
+        // --- Tip Modal Logic ---
         function toggleTipModal() {
             const modal = document.getElementById('tipModal');
             if (modal.classList.contains('hidden')) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
                 
-                // Small delay to allow display:flex to apply before animating opacity
                 setTimeout(() => {
                     modal.classList.remove('opacity-0');
                     modal.querySelector('.glass-card').classList.remove('scale-95');
@@ -397,13 +431,97 @@
                 modal.querySelector('.glass-card').classList.remove('scale-100');
                 modal.querySelector('.glass-card').classList.add('scale-95');
                 
-                // Wait for transition before hiding element
                 setTimeout(() => {
                     modal.classList.add('hidden');
                     modal.classList.remove('flex');
                 }, 300);
             }
         }
+
+        // --- Gallery Zoom Logic ---
+        const galleryImages = [
+            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png",
+            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png",
+            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault2.png",
+            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png",
+            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault2.png",
+            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png"
+        ];
+        
+        let currentImgIndex = 0;
+        const galleryModal = document.getElementById('galleryModal');
+        const galleryImgEl = document.getElementById('galleryImage');
+        const galleryCounter = document.getElementById('galleryCounter');
+
+        function openGallery(index) {
+            currentImgIndex = index;
+            
+            // Set image immediately before showing
+            galleryImgEl.src = galleryImages[currentImgIndex];
+            galleryCounter.innerText = currentImgIndex + 1;
+            
+            // Show modal container
+            galleryModal.classList.remove('hidden');
+            galleryModal.classList.add('flex');
+            
+            // Animate backdrop and image in
+            setTimeout(() => {
+                galleryModal.classList.remove('opacity-0');
+                galleryImgEl.classList.remove('scale-90', 'opacity-0');
+                galleryImgEl.classList.add('scale-100', 'opacity-100');
+            }, 10);
+        }
+
+        function closeGallery() {
+            // Animate out
+            galleryModal.classList.add('opacity-0');
+            galleryImgEl.classList.remove('scale-100', 'opacity-100');
+            galleryImgEl.classList.add('scale-90', 'opacity-0');
+            
+            // Hide after animation
+            setTimeout(() => {
+                galleryModal.classList.add('hidden');
+                galleryModal.classList.remove('flex');
+                galleryImgEl.src = ""; // Clear src to prevent flash on next open
+            }, 300);
+        }
+
+        function animateGalleryChange() {
+            // Fade and scale down current image
+            galleryImgEl.classList.remove('scale-100', 'opacity-100');
+            galleryImgEl.classList.add('scale-95', 'opacity-0');
+            
+            setTimeout(() => {
+                // Swap source and update counter
+                galleryImgEl.src = galleryImages[currentImgIndex];
+                galleryCounter.innerText = currentImgIndex + 1;
+                
+                // Fade and scale up new image
+                galleryImgEl.classList.remove('scale-95', 'opacity-0');
+                galleryImgEl.classList.add('scale-100', 'opacity-100');
+            }, 200); // 200ms matches halfway point of transition
+        }
+
+        function prevImage(e) {
+            if(e) e.stopPropagation();
+            currentImgIndex = (currentImgIndex - 1 + galleryImages.length) % galleryImages.length;
+            animateGalleryChange();
+        }
+
+        function nextImage(e) {
+            if(e) e.stopPropagation();
+            currentImgIndex = (currentImgIndex + 1) % galleryImages.length;
+            animateGalleryChange();
+        }
+
+        // Keyboard navigation for gallery
+        document.addEventListener('keydown', (e) => {
+            if (!galleryModal.classList.contains('hidden')) {
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'ArrowRight') nextImage();
+                if (e.key === 'Escape') closeGallery();
+            }
+        });
     </script>
 </body>
 </html>
