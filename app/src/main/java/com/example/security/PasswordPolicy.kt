@@ -1,7 +1,7 @@
 package com.example.security
 
 /**
- * Strict Password Policy Validator for Privault / Doc Vault.
+ * Strict Password Policy Validator for DocPass.
  *
  * Rules:
  * 1. Must contain at least 1 uppercase letter (A–Z)

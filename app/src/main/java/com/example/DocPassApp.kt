@@ -6,7 +6,7 @@ import com.example.data.VaultRepository
 import com.example.security.BackupEngine
 import com.example.security.SessionManager
 
-class PrivaultApp : Application() {
+class DocPassApp : Application() {
     lateinit var sessionManager: SessionManager
         private set
 

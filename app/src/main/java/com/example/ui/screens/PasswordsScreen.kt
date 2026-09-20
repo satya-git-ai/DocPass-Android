@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.School
@@ -79,7 +80,7 @@ fun PasswordsScreen(
     onDecryptPassword: (PasswordEntity) -> String,
     onCopyPassword: (String, String, Boolean) -> Unit
 ) {
-    val categories = listOf("All", "Bank", "ATM", "Education", "Social", "Shopping", "Other")
+    val categories = listOf("All", "Bank", "Email/Gmail", "ATM", "Education", "Social", "Shopping", "Other")
 
     Scaffold(
         floatingActionButton = {
@@ -267,6 +268,7 @@ fun PasswordListItem(
 
     val icon: ImageVector = when (password.category.lowercase()) {
         "bank" -> Icons.Filled.AccountBalance
+        "email/gmail", "email", "gmail" -> Icons.Filled.Email
         "atm" -> Icons.Filled.CreditCard
         "education" -> Icons.Filled.School
         "social" -> Icons.Filled.Share

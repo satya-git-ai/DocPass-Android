@@ -14,7 +14,7 @@ android {
   compileSdk { version = release(36) { minorApiLevel = 1 } }
 
   defaultConfig {
-    applicationId = "com.aistudio.privault.krvxmp"
+    applicationId = "com.aistudio.docpass.krvxmp"
     minSdk = 24
     targetSdk = 36
     versionCode = 1
@@ -41,8 +41,8 @@ android {
 
   buildTypes {
     release {
-      isCrunchPngs = false
-      isMinifyEnabled = false
+      isMinifyEnabled = true
+      isShrinkResources = true
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
       signingConfig = signingConfigs.getByName("release")
     }
@@ -94,7 +94,7 @@ dependencies {
   implementation(libs.kotlinx.coroutines.android)
   implementation(libs.kotlinx.coroutines.core)
 
-  // Cloud/Network dependencies commented out (Privault is 100% offline)
+  // Cloud/Network dependencies commented out (DocPass is 100% offline)
   // implementation(platform(libs.firebase.bom))
   // implementation(libs.firebase.ai)
   // implementation(libs.retrofit)

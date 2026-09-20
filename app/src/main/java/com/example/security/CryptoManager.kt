@@ -14,7 +14,7 @@ import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
 /**
- * Production-grade Cryptographic Engine for Privault.
+ * Production-grade Cryptographic Engine for DocPass.
  *
  * Implements:
  * - AES-256-GCM (Authenticated Encryption with Associated Data - AEAD)

@@ -17,7 +17,7 @@ import java.util.Arrays
 import java.util.UUID
 
 /**
- * Production-grade Encrypted Backup & Restore Engine for Privault.
+ * Production-grade Encrypted Backup & Restore Engine for DocPass.
  *
  * All exported backups are strongly encrypted using AES-256-GCM with a user-supplied
  * password or Master PIN before being written to disk/file.

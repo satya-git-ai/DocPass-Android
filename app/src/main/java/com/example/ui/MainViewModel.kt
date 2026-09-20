@@ -4,7 +4,7 @@ import android.app.Application
 import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.PrivaultApp
+import com.example.DocPassApp
 import com.example.data.DocumentEntity
 import com.example.data.PasswordEntity
 import com.example.security.BackupEngine
@@ -38,7 +38,7 @@ sealed class UiEvent {
 }
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
-    private val app = application as PrivaultApp
+    private val app = application as DocPassApp
     private val sessionManager = app.sessionManager
     private val repository = app.repository
     private val backupEngine = app.backupEngine

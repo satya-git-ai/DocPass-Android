@@ -4,7 +4,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.example.security.ThemeMode
 import com.example.ui.screens.LockScreen
-import com.example.ui.theme.PrivaultTheme
+import com.example.ui.theme.DocPassTheme
 import com.github.takahirom.roborazzi.RobolectricDeviceQualifiers
 import com.github.takahirom.roborazzi.captureRoboImage
 import org.junit.Rule
@@ -24,7 +24,7 @@ class GreetingScreenshotTest {
     @Test
     fun lock_screen_screenshot() {
         composeTestRule.setContent {
-            PrivaultTheme(themeMode = ThemeMode.DARK) {
+            DocPassTheme(themeMode = ThemeMode.DARK) {
                 LockScreen(
                     isMasterPinSet = true,
                     biometricEnabled = false,

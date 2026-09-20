@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.CreditCard
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Security
@@ -82,8 +83,12 @@ fun PasswordDetailDialog(
         PasswordGenerator.estimateStrength(plainPassword)
     }
 
+    val isBank = password.category.equals("Bank", ignoreCase = true)
+    val isAtm = password.category.equals("ATM", ignoreCase = true)
+
     val icon: ImageVector = when (password.category.lowercase()) {
         "bank" -> Icons.Filled.AccountBalance
+        "email/gmail", "email", "gmail" -> Icons.Filled.Email
         "atm" -> Icons.Filled.CreditCard
         "education" -> Icons.Filled.School
         "social" -> Icons.Filled.Share
@@ -138,128 +143,144 @@ fun PasswordDetailDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Username Row with Copy
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = "Username / Login ID",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = password.username,
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                        }
-
-                        IconButton(
-                            onClick = { onCopyUsername(password.username) },
-                            modifier = Modifier.size(32.dp).testTag("pwd_detail_copy_user")
+                if (isBank) {
+                    // Account Number Row
+                    if (password.accountIdentifier.isNotBlank()) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(12.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.ContentCopy,
-                                contentDescription = "Copy Username",
-                                tint = CyanPrimary,
-                                modifier = Modifier.size(16.dp)
-                            )
-                        }
-                    }
-                }
-
-                // Password Row (Masked with reveal toggle & Copy)
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(MaterialTheme.colorScheme.surface)
-                        .padding(12.dp)
-                ) {
-                    Column {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Password",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            // Strength indicator
-                            val strengthColor = when (strength) {
-                                PasswordGenerator.Strength.VERY_STRONG, PasswordGenerator.Strength.STRONG -> EmeraldSecurity
-                                PasswordGenerator.Strength.MEDIUM -> AmberSecurity
-                                PasswordGenerator.Strength.WEAK, PasswordGenerator.Strength.VERY_WEAK -> RoseSecurity
-                            }
-                            Text(
-                                text = strength.label,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = strengthColor,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(4.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = if (isPasswordVisible) plainPassword else "••••••••••••",
-                                style = MaterialTheme.typography.titleMedium,
-                                fontFamily = if (isPasswordVisible) FontFamily.Monospace else FontFamily.Default,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isPasswordVisible) EmeraldSecurity else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f)
-                            )
-
-                            Row {
-                                IconButton(
-                                    onClick = { isPasswordVisible = !isPasswordVisible },
-                                    modifier = Modifier.size(32.dp).testTag("pwd_detail_toggle_vis")
-                                ) {
-                                    Icon(
-                                        imageVector = if (isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                        contentDescription = "Toggle visibility",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(18.dp)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Account Number",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = password.accountIdentifier,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
 
                                 IconButton(
-                                    onClick = { onCopyPassword(plainPassword) },
-                                    modifier = Modifier.size(32.dp).testTag("pwd_detail_copy_pwd")
+                                    onClick = { onCopyUsername(password.accountIdentifier) },
+                                    modifier = Modifier.size(32.dp).testTag("pwd_detail_copy_account")
                                 ) {
                                     Icon(
                                         imageVector = Icons.Filled.ContentCopy,
-                                        contentDescription = "Copy Password",
-                                        tint = EmeraldSecurity,
-                                        modifier = Modifier.size(18.dp)
+                                        contentDescription = "Copy Account Number",
+                                        tint = CyanPrimary,
+                                        modifier = Modifier.size(16.dp)
                                     )
                                 }
                             }
                         }
                     }
-                }
 
-                if (password.accountIdentifier.isNotBlank()) {
-                    DetailRow(label = "Account ID / Card #", value = password.accountIdentifier)
+                    // Bank Username (if present and distinct from account number)
+                    if (password.username.isNotBlank() && password.username != password.accountIdentifier) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(MaterialTheme.colorScheme.surface)
+                                .padding(12.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = "Username",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = password.username,
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+
+                                IconButton(
+                                    onClick = { onCopyUsername(password.username) },
+                                    modifier = Modifier.size(32.dp).testTag("pwd_detail_copy_user")
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.ContentCopy,
+                                        contentDescription = "Copy Username",
+                                        tint = CyanPrimary,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // ATM, Email, or Other: Username / Card Number Row with Copy
+                    val userFieldLabel = if (isAtm) {
+                        "Card Number"
+                    } else if (password.category.equals("Email/Gmail", true) || password.category.equals("Email", true) || password.category.equals("Gmail", true)) {
+                        "Username / Login ID"
+                    } else {
+                        "Username / Email / Login ID"
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = userFieldLabel,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = password.username,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+
+                            IconButton(
+                                onClick = { onCopyUsername(password.username) },
+                                modifier = Modifier.size(32.dp).testTag("pwd_detail_copy_user")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.ContentCopy,
+                                    contentDescription = "Copy $userFieldLabel",
+                                    tint = CyanPrimary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
+                        }
+                    }
+
+                    if (password.accountIdentifier.isNotBlank()) {
+                        DetailRow(label = "Account ID / Card #", value = password.accountIdentifier)
+                    }
                 }
 
                 DetailRow(label = "Created", value = createdStr)
@@ -269,7 +290,7 @@ fun PasswordDetailDialog(
                 if (decryptedNotes.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Encrypted Notes",
+                        text = "Notes",
                         style = MaterialTheme.typography.labelMedium,
                         fontWeight = FontWeight.Bold,
                         color = EmeraldSecurity

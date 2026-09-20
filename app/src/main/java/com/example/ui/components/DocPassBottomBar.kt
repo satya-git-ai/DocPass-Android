@@ -26,13 +26,13 @@ import com.example.ui.theme.Navy800
 import com.example.ui.theme.Navy950
 
 @Composable
-fun PrivaultBottomBar(
+fun DocPassBottomBar(
     currentTab: VaultTab,
     onTabSelected: (VaultTab) -> Unit,
     modifier: Modifier = Modifier
 ) {
     NavigationBar(
-        modifier = modifier.testTag("privault_bottom_nav"),
+        modifier = modifier.testTag("docpass_bottom_nav"),
         windowInsets = WindowInsets.navigationBars,
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface

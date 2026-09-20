@@ -51,19 +51,19 @@ import com.example.ui.components.AddEditPasswordDialog
 import com.example.ui.components.ChangePinDialog
 import com.example.ui.components.ConfirmDeleteDialog
 import com.example.ui.components.DocumentDetailDialog
+import com.example.ui.components.DocPassBottomBar
 import com.example.ui.components.ExportBackupDialog
 import com.example.ui.components.GiveTipDialog
 import com.example.ui.components.ImportBackupDialog
 import com.example.ui.components.PasswordDetailDialog
 import com.example.ui.components.PasswordGeneratorDialog
-import com.example.ui.components.PrivaultBottomBar
 import com.example.ui.screens.DashboardScreen
 import com.example.ui.screens.DocumentsScreen
 import com.example.ui.screens.GlobalSearchScreen
 import com.example.ui.screens.LockScreen
 import com.example.ui.screens.PasswordsScreen
 import com.example.ui.screens.SettingsScreen
-import com.example.ui.theme.PrivaultTheme
+import com.example.ui.theme.DocPassTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.io.File
@@ -79,8 +79,8 @@ class MainActivity : FragmentActivity() {
         setContent {
             val themeMode by viewModel.themeMode.collectAsState()
 
-            PrivaultTheme(themeMode = themeMode) {
-                PrivaultMainApp(viewModel = viewModel)
+            DocPassTheme(themeMode = themeMode) {
+                DocPassMainApp(viewModel = viewModel)
             }
         }
     }
@@ -97,7 +97,7 @@ class MainActivity : FragmentActivity() {
 }
 
 @Composable
-fun PrivaultMainApp(viewModel: MainViewModel) {
+fun DocPassMainApp(viewModel: MainViewModel) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
@@ -203,12 +203,12 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
     Scaffold(
         modifier = Modifier
             .fillMaxSize()
-            .testTag("privault_root_layout"),
+            .testTag("docpass_root_layout"),
         contentWindowInsets = WindowInsets.safeDrawing,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             if (!isLocked && !isGlobalSearchOpen) {
-                PrivaultBottomBar(
+                DocPassBottomBar(
                     currentTab = activeTab,
                     onTabSelected = { viewModel.setActiveTab(it) }
                 )

@@ -56,7 +56,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun PrivaultTheme(
+fun DocPassTheme(
     themeMode: ThemeMode = ThemeMode.DARK,
     content: @Composable () -> Unit
 ) {

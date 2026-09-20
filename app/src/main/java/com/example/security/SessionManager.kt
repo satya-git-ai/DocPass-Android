@@ -28,16 +28,16 @@ enum class ThemeMode {
  */
 class SessionManager(private val context: Context) {
     private val prefs: SharedPreferences =
-        context.getSharedPreferences("privault_sec_prefs", Context.MODE_PRIVATE)
+        context.getSharedPreferences("docpass_sec_prefs", Context.MODE_PRIVATE)
 
     companion object {
-        private const val KEY_SALT = "privault_k_salt"
-        private const val KEY_VERIFIER = "privault_k_verifier"
-        private const val KEY_ENCRYPTED_VMK = "privault_k_enc_vmk"
-        private const val KEY_BIOMETRIC_ENABLED = "privault_pref_biometric"
-        private const val KEY_BIOMETRIC_ENCRYPTED_VMK = "privault_k_biometric_vmk"
-        private const val KEY_AUTO_LOCK_TIMEOUT = "privault_pref_autolock_ms"
-        private const val KEY_THEME_MODE = "privault_pref_theme"
+        private const val KEY_SALT = "docpass_k_salt"
+        private const val KEY_VERIFIER = "docpass_k_verifier"
+        private const val KEY_ENCRYPTED_VMK = "docpass_k_enc_vmk"
+        private const val KEY_BIOMETRIC_ENABLED = "docpass_pref_biometric"
+        private const val KEY_BIOMETRIC_ENCRYPTED_VMK = "docpass_k_biometric_vmk"
+        private const val KEY_AUTO_LOCK_TIMEOUT = "docpass_pref_autolock_ms"
+        private const val KEY_THEME_MODE = "docpass_pref_theme"
 
         private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
         private const val BIOMETRIC_KEY_ALIAS = "docpass_biometric_key_wrap"

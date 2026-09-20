@@ -23,7 +23,7 @@ abstract class VaultDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     VaultDatabase::class.java,
-                    "privault_local.db"
+                    "docpass_local.db"
                 ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance

@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Autorenew
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.Visibility
@@ -24,7 +23,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,9 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.data.PasswordEntity
-import com.example.security.PasswordGenerator
 import com.example.ui.theme.EmeraldSecurity
 import com.example.ui.theme.Navy950
 
@@ -69,14 +65,17 @@ fun AddEditPasswordDialog(
     var title by remember { mutableStateOf(passwordToEdit?.title ?: "") }
     var category by remember { mutableStateOf(passwordToEdit?.category ?: initialCategory) }
     var username by remember { mutableStateOf(passwordToEdit?.username ?: "") }
-    var accountIdentifier by remember { mutableStateOf(passwordToEdit?.accountIdentifier ?: "") }
+    var accountNumber by remember { mutableStateOf(passwordToEdit?.accountIdentifier ?: "") }
     var password by remember { mutableStateOf(initialPlainPassword) }
     var notes by remember { mutableStateOf(initialDecryptedNotes) }
     var isPasswordVisible by remember { mutableStateOf(false) }
     var categoryMenuExpanded by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
-    val categories = listOf("Bank", "ATM", "Education", "Social", "Shopping", "Other")
+    val isBank = category.equals("Bank", ignoreCase = true)
+    val isAtm = category.equals("ATM", ignoreCase = true)
+    val isEmail = category.equals("Email/Gmail", ignoreCase = true) || category.equals("Email", ignoreCase = true) || category.equals("Gmail", ignoreCase = true)
+    val categories = listOf("Bank", "Email/Gmail", "ATM", "Education", "Social", "Shopping", "Other")
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -94,22 +93,24 @@ fun AddEditPasswordDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                // Title / App Name
-                OutlinedTextField(
-                    value = title,
-                    onValueChange = {
-                        title = it
-                        errorMessage = null
-                    },
-                    label = { Text("App / Website / Service *") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("pwd_form_title_input"),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EmeraldSecurity
+                // Title / Bank Name / App Name (Hidden for Email/Gmail)
+                if (!isEmail) {
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = {
+                            title = it
+                            errorMessage = null
+                        },
+                        label = { Text(if (isBank || isAtm) "Bank name *" else "App / website / service *") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("pwd_form_title_input"),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = EmeraldSecurity
+                        )
                     )
-                )
+                }
 
                 // Category Dropdown
                 Box(modifier = Modifier.fillMaxWidth()) {
@@ -159,90 +160,124 @@ fun AddEditPasswordDialog(
                     }
                 }
 
-                // Username / Email
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = {
-                        username = it
-                        errorMessage = null
-                    },
-                    label = { Text("Username / Email / Login ID *") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("pwd_form_username_input"),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EmeraldSecurity
-                    )
-                )
-
-                // Account Identifier
-                OutlinedTextField(
-                    value = accountIdentifier,
-                    onValueChange = { accountIdentifier = it },
-                    label = { Text("Account Identifier / Card # (Optional)") },
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .testTag("pwd_form_account_id_input"),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EmeraldSecurity
-                    )
-                )
-
-                // Password with inline generator trigger
-                Column {
+                if (isBank) {
+                    // Bank Category: Account number field
                     OutlinedTextField(
-                        value = password,
+                        value = accountNumber,
                         onValueChange = {
-                            password = it
+                            accountNumber = it
                             errorMessage = null
                         },
-                        label = { Text("Password / PIN *") },
+                        label = { Text("Account number *") },
                         singleLine = true,
-                        visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        trailingIcon = {
-                            IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
-                                Icon(
-                                    imageVector = if (isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                                    contentDescription = "Toggle password visibility"
-                                )
-                            }
-                        },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .testTag("pwd_form_password_input"),
+                            .testTag("pwd_form_account_number_input"),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EmeraldSecurity
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(6.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.End
-                    ) {
-                        FilledTonalButton(
-                            onClick = {
-                                password = PasswordGenerator.generateMemorable()
-                                isPasswordVisible = true
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.testTag("pwd_form_generate_button")
-                        ) {
-                            Icon(Icons.Filled.Autorenew, contentDescription = null, modifier = Modifier.size(16.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Generate", fontSize = 12.sp)
-                        }
-                    }
+                    // Bank Category: Username field (only display if category is bank)
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = {
+                            username = it
+                            errorMessage = null
+                        },
+                        label = { Text("Username") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("pwd_form_username_input"),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = EmeraldSecurity
+                        )
+                    )
+                } else if (isAtm) {
+                    // ATM: Card number
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = {
+                            username = it
+                            errorMessage = null
+                        },
+                        label = { Text("Card number *") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("pwd_form_username_input"),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = EmeraldSecurity
+                        )
+                    )
+                } else if (isEmail) {
+                    // Email/Gmail: Username / Login ID
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = {
+                            username = it
+                            errorMessage = null
+                        },
+                        label = { Text("Username / Login ID *") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("pwd_form_username_input"),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = EmeraldSecurity
+                        )
+                    )
+                } else {
+                    // Non-Bank / Non-ATM: Username / Email / Login ID
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = {
+                            username = it
+                            errorMessage = null
+                        },
+                        label = { Text("Username / Email / Login ID *") },
+                        singleLine = true,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .testTag("pwd_form_username_input"),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = EmeraldSecurity
+                        )
+                    )
                 }
+
+                // Password / PIN
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
+                        errorMessage = null
+                    },
+                    label = { Text(if (isAtm) "PIN *" else "Password / PIN *") },
+                    singleLine = true,
+                    visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                imageVector = if (isPasswordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
+                                contentDescription = "Toggle password visibility"
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("pwd_form_password_input"),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = EmeraldSecurity
+                    )
+                )
 
                 // Notes
                 OutlinedTextField(
                     value = notes,
                     onValueChange = { notes = it },
-                    label = { Text("Encrypted Notes (Optional)") },
+                    label = { Text("Notes (Optional)") },
                     minLines = 3,
                     maxLines = 5,
                     modifier = Modifier
@@ -265,19 +300,44 @@ fun AddEditPasswordDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    if (title.isBlank()) {
-                        errorMessage = "App / Website name is required"
+                    if (!isEmail && title.isBlank()) {
+                        errorMessage = if (isBank || isAtm) "Bank name is required" else "App / website name is required"
                         return@Button
                     }
-                    if (username.isBlank()) {
-                        errorMessage = "Username or Login ID is required"
-                        return@Button
+                    if (isBank) {
+                        if (accountNumber.isBlank()) {
+                            errorMessage = "Account number is required"
+                            return@Button
+                        }
+                    } else if (isAtm) {
+                        if (username.isBlank()) {
+                            errorMessage = "Card number is required"
+                            return@Button
+                        }
+                    } else {
+                        if (username.isBlank()) {
+                            errorMessage = "Username or Login ID is required"
+                            return@Button
+                        }
                     }
                     if (password.isBlank()) {
-                        errorMessage = "Password is required"
+                        errorMessage = if (isAtm) "PIN is required" else "Password is required"
                         return@Button
                     }
-                    onSave(title, category, username, accountIdentifier, password, notes)
+
+                    val finalTitle = if (isEmail) {
+                        if (title.isNotBlank()) title else "Email / Gmail"
+                    } else {
+                        title
+                    }
+                    val finalUsername = if (isBank) {
+                        if (username.isNotBlank()) username else accountNumber
+                    } else {
+                        username
+                    }
+                    val finalAccountId = if (isBank) accountNumber else ""
+
+                    onSave(finalTitle, category, finalUsername, finalAccountId, password, notes)
                 },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = EmeraldSecurity,
