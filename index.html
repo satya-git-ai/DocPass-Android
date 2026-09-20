@@ -27,10 +27,7 @@
         /* Animated Mesh Background */
         .bg-mesh {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
+            top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: -2;
             background: linear-gradient(45deg, #1e1b4b, #312e81, #4c1d95, #881337);
             background-size: 400% 400%;
@@ -53,33 +50,9 @@
             animation: float 10s infinite alternate ease-in-out;
         }
         
-        .blob-1 {
-            width: 400px;
-            height: 400px;
-            background: #ec4899; /* Pink */
-            top: -100px;
-            left: -100px;
-            animation-delay: 0s;
-        }
-
-        .blob-2 {
-            width: 500px;
-            height: 500px;
-            background: #3b82f6; /* Blue */
-            bottom: -150px;
-            right: -100px;
-            animation-delay: -5s;
-        }
-        
-        .blob-3 {
-            width: 300px;
-            height: 300px;
-            background: #8b5cf6; /* Purple */
-            top: 40%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation-delay: -2s;
-        }
+        .blob-1 { width: 400px; height: 400px; background: #ec4899; top: -100px; left: -100px; animation-delay: 0s; }
+        .blob-2 { width: 500px; height: 500px; background: #3b82f6; bottom: -150px; right: -100px; animation-delay: -5s; }
+        .blob-3 { width: 300px; height: 300px; background: #8b5cf6; top: 40%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; }
 
         @keyframes float {
             0% { transform: translate(0, 0) scale(1); }
@@ -129,7 +102,6 @@
             text-shadow: 0 0 20px rgba(255,255,255,0.4);
         }
         
-        /* Utility for gallery image transitions */
         .zoom-transition {
             transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
         }
@@ -155,7 +127,6 @@
             <a href="#features" class="hover:text-white transition-colors">Features</a>
             <a href="#screenshots" class="hover:text-white transition-colors">Interface</a>
             <a href="#security" class="hover:text-white transition-colors">Security</a>
-            <!-- Nav Download Link -->
             <a href="https://github.com/satya-git-ai/DocPass-Android/releases/download/DocPass.apk/DocPass.apk" class="glass-button px-6 py-2 rounded-full text-white font-semibold flex items-center gap-2">
                 Download Now
             </a>
@@ -165,8 +136,6 @@
     <main class="flex-grow z-10">
         <!-- Hero Section -->
         <section class="container mx-auto px-6 py-20 lg:py-32 flex flex-col items-center justify-center gap-16">
-            
-            <!-- Hero Text -->
             <div class="w-full max-w-4xl flex flex-col items-center text-center">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 border-white/20 text-sm font-medium">
                     <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
@@ -179,9 +148,7 @@
                 <p class="text-lg md:text-xl text-white/80 mb-10 leading-relaxed max-w-2xl font-light">
                     Store your sensitive documents, certificates, and passwords securely in categories. Zero network required. Zero servers. 100% safe.
                 </p>
-                
                 <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
-                    <!-- Hero Download Link -->
                     <a href="https://github.com/satya-git-ai/DocPass-Android/releases/download/DocPass.apk/DocPass.apk" class="glass-button px-8 py-4 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 group w-full sm:w-auto">
                         <i class="fa-brands fa-android text-2xl group-hover:text-green-400 transition-colors"></i>
                         Get Now
@@ -206,7 +173,7 @@
                     </div>
                     <h3 class="text-2xl font-semibold mb-3 z-10">Secure Document Categories</h3>
                     <p class="text-white/70 leading-relaxed z-10 font-light">
-                        User can able to save documents securely as per category e.g: bank, personal, gov documents.
+                        Save documents securely across distinct categories like bank, personal, and gov documents.
                     </p>
                 </div>
 
@@ -218,7 +185,7 @@
                     </div>
                     <h3 class="text-2xl font-semibold mb-3 z-10">Organized Passwords</h3>
                     <p class="text-white/70 leading-relaxed z-10 font-light">
-                        User can able to save passwords as per category e.g app name, password. Access your credentials in seconds.
+                        Store passwords efficiently by app name and category. Access your credentials in seconds.
                     </p>
                 </div>
 
@@ -256,7 +223,7 @@
                 <p class="text-sm text-pink-300 mt-2 font-medium animate-pulse">Click any image to zoom</p>
             </div>
             
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div onclick="openGallery(0)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
                     <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png" alt="Dashboard" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
@@ -264,15 +231,9 @@
                     <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png" alt="Document Vault" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
                 <div onclick="openGallery(2)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault2.png" alt="Document Entry" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
-                </div>
-                <div onclick="openGallery(3)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
                     <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png" alt="Password Vault" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
-                <div onclick="openGallery(4)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault2.png" alt="Password Entry" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
-                </div>
-                <div onclick="openGallery(5)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
+                <div onclick="openGallery(3)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
                     <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png" alt="Settings" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
                 </div>
             </div>
@@ -283,7 +244,7 @@
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4 text-glow">"Your private vault. Always offline."</h2>
                 <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">
-                    DocPass is designed to work offline. Your vault data is stored locally on your device and is not uploaded to a server.
+                    DocPass is designed to work offline. Your vault data is stored locally on your device and is never uploaded to a server.
                 </p>
             </div>
 
@@ -336,13 +297,11 @@
                 <p class="text-white/80 mb-10 max-w-xl mx-auto relative z-10">Join thousands of users who trust DocPass for their offline security needs. Free, safe, and built for Android.</p>
                 
                 <div class="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
-                    <!-- CTA Download Link -->
                     <a href="https://github.com/satya-git-ai/DocPass-Android/releases/download/DocPass.apk/DocPass.apk" class="glass-button px-10 py-4 rounded-full text-lg font-bold inline-flex items-center justify-center gap-3 w-full sm:w-auto group">
                         <i class="fa-brands fa-android text-2xl group-hover:text-green-400 transition-colors"></i>
                         Get DocPass Now
                     </a>
                     
-                    <!-- Give Tip Button -->
                     <button onclick="toggleTipModal()" class="glass-button px-10 py-4 rounded-full text-lg font-bold inline-flex items-center justify-center gap-3 w-full sm:w-auto text-pink-300 hover:text-pink-200 transition-colors shadow-[0_0_15px_rgba(236,72,153,0.15)] group">
                         <i class="fa-solid fa-qrcode text-2xl group-hover:scale-110 transition-transform"></i>
                         Give Tip
@@ -350,7 +309,6 @@
                 </div>
             </div>
         </section>
-
     </main>
 
     <!-- Footer -->
@@ -386,29 +344,24 @@
 
     <!-- Image Zoom Gallery Modal -->
     <div id="galleryModal" onclick="closeGallery()" class="fixed inset-0 z-[110] hidden items-center justify-center bg-slate-900/90 backdrop-blur-md opacity-0 transition-opacity duration-300">
-        <!-- Close Button -->
         <button onclick="closeGallery()" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-50 p-2">
             <i class="fa-solid fa-xmark text-3xl"></i>
         </button>
 
-        <!-- Previous Button -->
         <button onclick="prevImage(event)" class="absolute left-4 md:left-10 text-white/50 hover:text-white hover:scale-110 transition-all z-50 p-4 bg-white/5 rounded-full hover:bg-white/10">
             <i class="fa-solid fa-chevron-left text-2xl"></i>
         </button>
 
-        <!-- Image Container -->
         <div class="relative flex justify-center items-center h-[85vh] w-[85vw] max-w-5xl pointer-events-none">
             <img id="galleryImage" src="" alt="Zoomed Interface" class="max-h-full max-w-full object-contain zoom-transition scale-90 opacity-0 rounded-2xl shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
         </div>
 
-        <!-- Next Button -->
         <button onclick="nextImage(event)" class="absolute right-4 md:right-10 text-white/50 hover:text-white hover:scale-110 transition-all z-50 p-4 bg-white/5 rounded-full hover:bg-white/10">
             <i class="fa-solid fa-chevron-right text-2xl"></i>
         </button>
         
-        <!-- Image Counter -->
         <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 font-medium tracking-widest text-sm bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">
-            <span id="galleryCounter">1</span> / 6
+            <span id="galleryCounter">1</span> / 4
         </div>
     </div>
 
@@ -442,9 +395,7 @@
         const galleryImages = [
             "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png",
             "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png",
-            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault2.png",
             "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png",
-            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault2.png",
             "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png"
         ];
         
@@ -456,15 +407,12 @@
         function openGallery(index) {
             currentImgIndex = index;
             
-            // Set image immediately before showing
             galleryImgEl.src = galleryImages[currentImgIndex];
             galleryCounter.innerText = currentImgIndex + 1;
             
-            // Show modal container
             galleryModal.classList.remove('hidden');
             galleryModal.classList.add('flex');
             
-            // Animate backdrop and image in
             setTimeout(() => {
                 galleryModal.classList.remove('opacity-0');
                 galleryImgEl.classList.remove('scale-90', 'opacity-0');
@@ -473,33 +421,28 @@
         }
 
         function closeGallery() {
-            // Animate out
             galleryModal.classList.add('opacity-0');
             galleryImgEl.classList.remove('scale-100', 'opacity-100');
             galleryImgEl.classList.add('scale-90', 'opacity-0');
             
-            // Hide after animation
             setTimeout(() => {
                 galleryModal.classList.add('hidden');
                 galleryModal.classList.remove('flex');
-                galleryImgEl.src = ""; // Clear src to prevent flash on next open
+                galleryImgEl.src = ""; 
             }, 300);
         }
 
         function animateGalleryChange() {
-            // Fade and scale down current image
             galleryImgEl.classList.remove('scale-100', 'opacity-100');
             galleryImgEl.classList.add('scale-95', 'opacity-0');
             
             setTimeout(() => {
-                // Swap source and update counter
                 galleryImgEl.src = galleryImages[currentImgIndex];
                 galleryCounter.innerText = currentImgIndex + 1;
                 
-                // Fade and scale up new image
                 galleryImgEl.classList.remove('scale-95', 'opacity-0');
                 galleryImgEl.classList.add('scale-100', 'opacity-100');
-            }, 200); // 200ms matches halfway point of transition
+            }, 200); 
         }
 
         function prevImage(e) {
@@ -514,7 +457,6 @@
             animateGalleryChange();
         }
 
-        // Keyboard navigation for gallery
         document.addEventListener('keydown', (e) => {
             if (!galleryModal.classList.contains('hidden')) {
                 if (e.key === 'ArrowLeft') prevImage();
