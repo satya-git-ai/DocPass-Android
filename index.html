@@ -1,11 +1,411 @@
-<!-- Scripts -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DocPass - Secure Offline Digital Vault</title>
+
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: white;
+            overflow-x: hidden;
+        }
+
+        /* Animated Mesh Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -2;
+            background: linear-gradient(45deg, #1e1b4b, #312e81, #4c1d95, #881337);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Abstract Floating Blobs */
+        .blob {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: -1;
+            opacity: 0.7;
+            animation: float 10s infinite alternate ease-in-out;
+        }
+
+        .blob-1 { width: 400px; height: 400px; background: #ec4899; top: -100px; left: -100px; animation-delay: 0s; }
+        .blob-2 { width: 500px; height: 500px; background: #3b82f6; bottom: -150px; right: -100px; animation-delay: -5s; }
+        .blob-3 { width: 300px; height: 300px; background: #8b5cf6; top: 40%; left: 50%; transform: translate(-50%, -50%); animation-delay: -2s; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(30px, 50px) scale(1.1); }
+        }
+
+        /* Glassmorphism Utilities */
+        .glass-nav {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .glass-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            border-radius: 1.5rem;
+            transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.4);
+        }
+
+        .glass-button {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .glass-button:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.15) 100%);
+            box-shadow: 0 8px 25px 0 rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 20px rgba(255,255,255,0.4);
+        }
+
+        /* Glass Phone Specific */
+        .glass-phone {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                -10px -10px 20px rgba(255, 255, 255, 0.05),
+                10px 20px 40px rgba(0, 0, 0, 0.5),
+                inset 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .phone-glare {
+            background: linear-gradient(105deg, rgba(255, 255, 255, 0.3) 0%, transparent 40%, transparent 100%);
+        }
+
+        /* Active state for screen selector buttons */
+        .screen-btn.active {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.6);
+            transform: translateX(10px);
+        }
+        .screen-btn.active:hover {
+            transform: translateX(10px) translateY(-5px);
+        }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative">
+
+    <!-- Background Layers -->
+    <div class="bg-mesh"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 w-full py-4 px-6 sm:px-12 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center border border-white/20 shadow-lg overflow-hidden">
+                <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/logo-lite.png" alt="DocPass Logo" class="w-full h-full object-contain" onerror="this.src='https://placehold.co/40x40/0f172a/ffffff?text=DP'">
+            </div>
+            <span class="text-2xl font-bold tracking-tight text-glow">DocPass</span>
+        </div>
+        <div class="hidden sm:flex items-center gap-6 text-sm font-medium text-white/80">
+            <a href="#features" class="hover:text-white transition-colors">Features</a>
+            <a href="#screenshots" class="hover:text-white transition-colors">Interface</a>
+            <a href="#security" class="hover:text-white transition-colors">Security</a>
+            <a href="https://github.com/satya-git-ai/DocPass-Android/releases/download/DocPass.apk/DocPass.apk" class="glass-button px-6 py-2 rounded-full text-white font-semibold flex items-center gap-2">
+                Download Now
+            </a>
+        </div>
+    </nav>
+
+    <main class="flex-grow z-10">
+        <!-- Hero Section -->
+        <section class="container mx-auto px-6 py-20 lg:py-32 flex flex-col items-center justify-center gap-16">
+            <div class="w-full max-w-4xl flex flex-col items-center text-center">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-card mb-6 border-white/20 text-sm font-medium">
+                    <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                    100% Offline & Serverless
+                </div>
+                <h1 class="text-5xl md:text-7xl font-extrabold leading-tight mb-6 text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/70 drop-shadow-lg">
+                    Your Digital Vault, <br/>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-300 to-indigo-300">Uncompromised.</span>
+                </h1>
+                <p class="text-lg md:text-xl text-white/80 mb-10 leading-relaxed max-w-2xl font-light">
+                    Store your sensitive documents, certificates, and passwords securely in categories. Zero network required. Zero servers. 100% safe.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center">
+                    <a href="https://github.com/satya-git-ai/DocPass-Android/releases/download/DocPass.apk/DocPass.apk" class="glass-button px-8 py-4 rounded-2xl text-lg font-bold flex items-center justify-center gap-3 group w-full sm:w-auto">
+                        <i class="fa-brands fa-android text-2xl group-hover:text-green-400 transition-colors"></i>
+                        Get Now
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="container mx-auto px-6 py-20">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-glow">Why Choose DocPass?</h2>
+                <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">Built from the ground up for unparalleled security, privacy, and ease of use.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Feature 1 -->
+                <div class="glass-card p-8 flex flex-col items-start relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-blue-500/30 rounded-full blur-xl group-hover:bg-blue-400/40 transition-colors"></div>
+                    <div class="w-14 h-14 rounded-2xl glass-card flex items-center justify-center mb-6 border-white/30 text-blue-300 text-2xl shadow-lg z-10">
+                        <i class="fa-solid fa-file-shield"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 z-10">Secure Document Categories</h3>
+                    <p class="text-white/70 leading-relaxed z-10 font-light">
+                        Save documents securely across distinct categories like bank, personal, and gov documents.
+                    </p>
+                </div>
+
+                <!-- Feature 2 -->
+                <div class="glass-card p-8 flex flex-col items-start relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-yellow-500/30 rounded-full blur-xl group-hover:bg-yellow-400/40 transition-colors"></div>
+                    <div class="w-14 h-14 rounded-2xl glass-card flex items-center justify-center mb-6 border-white/30 text-yellow-300 text-2xl shadow-lg z-10">
+                        <i class="fa-solid fa-key"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 z-10">Organized Passwords</h3>
+                    <p class="text-white/70 leading-relaxed z-10 font-light">
+                        Store passwords efficiently by app name and category. Access your credentials in seconds.
+                    </p>
+                </div>
+
+                <!-- Feature 3 -->
+                <div class="glass-card p-8 flex flex-col items-start relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-pink-500/30 rounded-full blur-xl group-hover:bg-pink-400/40 transition-colors"></div>
+                    <div class="w-14 h-14 rounded-2xl glass-card flex items-center justify-center mb-6 border-white/30 text-pink-300 text-2xl shadow-lg z-10">
+                        <i class="fa-solid fa-plane-slash"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 z-10">100% Offline Mode</h3>
+                    <p class="text-white/70 leading-relaxed z-10 font-light">
+                        No internet? No problem. DocPass works completely offline. Your sensitive data is stored exclusively on your device, preventing remote leaks.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="glass-card p-8 flex flex-col items-start relative overflow-hidden group">
+                    <div class="absolute -right-6 -top-6 w-24 h-24 bg-indigo-500/30 rounded-full blur-xl group-hover:bg-indigo-400/40 transition-colors"></div>
+                    <div class="w-14 h-14 rounded-2xl glass-card flex items-center justify-center mb-6 border-white/30 text-indigo-300 text-2xl shadow-lg z-10">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h3 class="text-2xl font-semibold mb-3 z-10">Serverless & Secure</h3>
+                    <p class="text-white/70 leading-relaxed z-10 font-light">
+                        Zero server architecture means zero single points of failure. Your data is encrypted locally using state-of-the-art standards. Only you hold the key.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- App Screenshots Section -->
+        <section id="screenshots" class="container mx-auto px-6 py-20 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-glow">App Interface</h2>
+                <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">Beautiful, intuitive, and modern design crafted for maximum usability.</p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row items-center justify-center gap-12 lg:gap-24 max-w-5xl mx-auto">
+                <!-- Interface Selectors -->
+                <div class="flex flex-col gap-4 w-full lg:w-1/3 order-2 lg:order-1">
+                    <button onclick="switchScreen('dashboard.png', this)" class="screen-btn active glass-card p-5 text-left w-full cursor-pointer focus:outline-none">
+                        <h4 class="text-xl font-semibold text-white mb-1">Dashboard</h4>
+                        <p class="text-sm text-white/60 font-light">Get a bird's-eye view of your secure offline vault.</p>
+                    </button>
+
+                    <button onclick="switchScreen('doc.vault.png', this)" class="screen-btn glass-card p-5 text-left w-full cursor-pointer focus:outline-none">
+                        <h4 class="text-xl font-semibold text-white mb-1">Document Vault</h4>
+                        <p class="text-sm text-white/60 font-light">Categorize and access sensitive files instantly.</p>
+                    </button>
+
+                    <button onclick="switchScreen('pass.vault.png', this)" class="screen-btn glass-card p-5 text-left w-full cursor-pointer focus:outline-none">
+                        <h4 class="text-xl font-semibold text-white mb-1">Password Vault</h4>
+                        <p class="text-sm text-white/60 font-light">Manage your encrypted credentials safely.</p>
+                    </button>
+
+                    <button onclick="switchScreen('settings.png', this)" class="screen-btn glass-card p-5 text-left w-full cursor-pointer focus:outline-none">
+                        <h4 class="text-xl font-semibold text-white mb-1">Settings</h4>
+                        <p class="text-sm text-white/60 font-light">Customize your security and app preferences.</p>
+                    </button>
+                </div>
+
+                <!-- Single Glass Phone Display -->
+                <div class="group relative w-[280px] sm:w-[320px] h-[600px] sm:h-[680px] flex-shrink-0 order-1 lg:order-2 transition-transform duration-700 hover:-translate-y-2">
+                    <div class="glass-phone absolute inset-0 rounded-[3rem] p-3 flex flex-col items-center shadow-2xl">
+                        <!-- Camera Notch / Dynamic Pill -->
+                        <div class="absolute top-5 w-28 h-7 bg-black/90 rounded-full z-20 flex justify-center items-center backdrop-blur-md shadow-inner border border-white/5">
+                            <div class="w-2 h-2 rounded-full bg-blue-900/50 mr-5"></div>
+                            <div class="w-3 h-3 rounded-full bg-black border border-white/10 flex items-center justify-center">
+                                <div class="w-1 h-1 rounded-full bg-blue-500/50"></div>
+                            </div>
+                        </div>
+
+                        <!-- Screen Content -->
+                        <div class="w-full h-full rounded-[2.3rem] overflow-hidden bg-[#0f172a] relative z-10 border border-white/5">
+                            <img id="phone-screen" src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png" alt="App Interface" class="w-full h-full object-cover object-top transition-opacity duration-300">
+                        </div>
+
+                        <!-- Screen Glare Overlay -->
+                        <div class="phone-glare absolute inset-0 rounded-[3rem] pointer-events-none z-30 opacity-70"></div>
+                    </div>
+                    <!-- Ambient Glow -->
+                    <div class="absolute -inset-4 bg-gradient-to-r from-blue-500/0 via-blue-500/20 to-indigo-500/0 rounded-[4rem] blur-2xl opacity-0 group-hover:opacity-100 transition duration-700 -z-10"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Security Features Section -->
+        <section id="security" class="container mx-auto px-6 py-20 mt-10 relative z-10">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl md:text-5xl font-bold mb-4 text-glow">"Your private vault. Always offline."</h2>
+                <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">
+                    DocPass is designed to work offline. Your vault data is stored locally on your device and is never uploaded to a server.
+                </p>
+            </div>
+
+            <div class="glass-card p-8 md:p-12 max-w-3xl mx-auto">
+                <ul class="space-y-8">
+                    <li class="flex items-start gap-5">
+                        <div class="mt-1 w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30 text-green-400 flex-shrink-0 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-xl text-white">Cryptography:</span>
+                            <span class="text-white/70 text-lg font-light ml-2">AES-256-GCM authenticated encryption</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-5">
+                        <div class="mt-1 w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30 text-blue-400 flex-shrink-0 shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                            <i class="fa-solid fa-microchip"></i>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-xl text-white">Key Derivation:</span>
+                            <span class="text-white/70 text-lg font-light ml-2">PBKDF2 with HMAC-SHA256 (100,000 iterations)</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-5">
+                        <div class="mt-1 w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center border border-purple-500/30 text-purple-400 flex-shrink-0 shadow-[0_0_15px_rgba(168,85,247,0.3)]">
+                            <i class="fa-solid fa-globe"></i>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-xl text-white">Zero network permissions</span>
+                            <span class="text-white/70 text-lg font-light ml-2">(No internet socket required)</span>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-5">
+                        <div class="mt-1 w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center border border-pink-500/30 text-pink-400 flex-shrink-0 shadow-[0_0_15px_rgba(236,72,153,0.3)]">
+                            <i class="fa-solid fa-plane"></i>
+                        </div>
+                        <div>
+                            <span class="font-semibold text-xl text-white">Works seamlessly in Airplane Mode</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Bottom CTA -->
+        <section class="container mx-auto px-6 py-20">
+            <div class="glass-card rounded-[3rem] p-12 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-white/5 to-transparent"></div>
+                <h2 class="text-3xl md:text-5xl font-bold mb-6 relative z-10">Take Control of Your Data</h2>
+                <p class="text-white/80 mb-10 max-w-xl mx-auto relative z-10">Join thousands of users who trust DocPass for their offline security needs. Free, safe, and built for Android.</p>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center relative z-10">
+                    <a href="https://github.com/satya-git-ai/DocPass-Android/releases/download/DocPass.apk/DocPass.apk" class="glass-button px-10 py-4 rounded-full text-lg font-bold inline-flex items-center justify-center gap-3 w-full sm:w-auto group">
+                        <i class="fa-brands fa-android text-2xl group-hover:text-green-400 transition-colors"></i>
+                        Get DocPass Now
+                    </a>
+
+                    <button onclick="toggleTipModal()" class="glass-button px-10 py-4 rounded-full text-lg font-bold inline-flex items-center justify-center gap-3 w-full sm:w-auto text-pink-300 hover:text-pink-200 transition-colors shadow-[0_0_15px_rgba(236,72,153,0.15)] group">
+                        <i class="fa-solid fa-qrcode text-2xl group-hover:scale-110 transition-transform"></i>
+                        Give Tip
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-nav mt-auto py-8 text-center text-white/50 text-sm z-10 relative">
+        <div class="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/logo-lite.png" alt="DocPass Logo" class="w-5 h-5 object-contain opacity-70" onerror="this.src='https://placehold.co/20x20/0f172a/ffffff?text=DP'">
+                <span class="font-semibold text-white/70">DocPass</span>
+                <span>&copy; 2026 All Rights Reserved.</span>
+            </div>
+            <div class="flex gap-6">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                <a href="#" class="hover:text-white transition-colors">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Payment Scanner Modal -->
+    <div id="tipModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+        <div class="glass-card p-8 flex flex-col items-center max-w-sm w-[90%] relative transform scale-95 transition-transform duration-300">
+            <button onclick="toggleTipModal()" class="absolute top-4 right-4 text-white/50 hover:text-white transition-colors">
+                <i class="fa-solid fa-xmark text-2xl"></i>
+            </button>
+            <h3 class="text-2xl font-bold mb-2 text-glow">Support DocPass</h3>
+            <p class="text-white/70 text-center mb-6 font-light text-sm">Scan the QR code below using any payment app to send a tip.</p>
+            <div class="bg-white p-4 rounded-xl shadow-lg mb-4">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=docpass@axl&pn=DocPass" alt="Payment Scanner" class="w-48 h-48 object-contain">
+            </div>
+            <p class="text-white/50 text-xs text-center">Thank you for supporting offline security!</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
     <script>
         // --- Tip Modal & Mobile UPI Logic ---
         function toggleTipModal() {
             // Define the UPI payment link
             const upiLink = "upi://pay?pa=docpass@axl&pn=DocPass";
             
-            // Check if the user is on a mobile device
+            // Check if the user is on a mobile device (Checking User Agent or Screen width)
             const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
 
             if (isMobile) {
@@ -55,3 +455,5 @@
             }, 200);
         }
     </script>
+</body>
+</html>
