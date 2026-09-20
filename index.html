@@ -101,9 +101,23 @@
         .text-glow {
             text-shadow: 0 0 20px rgba(255,255,255,0.4);
         }
+
+        /* Glass Phone Specific */
+        .glass-phone {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 
+                -10px -10px 20px rgba(255, 255, 255, 0.05),
+                10px 20px 40px rgba(0, 0, 0, 0.5),
+                inset 0 0 15px rgba(255, 255, 255, 0.1);
+        }
         
-        .zoom-transition {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        .phone-glare {
+            background: linear-gradient(105deg, rgba(255, 255, 255, 0.3) 0%, transparent 40%, transparent 100%);
         }
     </style>
 </head>
@@ -215,32 +229,94 @@
             </div>
         </section>
 
-        <!-- App Screenshots Section -->
+        <!-- App Screenshots Section (Glass Phones) -->
         <section id="screenshots" class="container mx-auto px-6 py-20 relative z-10">
-            <div class="text-center mb-16">
+            <div class="text-center mb-20">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4 text-glow">App Interface</h2>
-                <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">Clean, intuitive, and modern design crafted for maximum usability.</p>
-                <p class="text-sm text-pink-300 mt-2 font-medium animate-pulse">Click any image to zoom</p>
+                <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">Beautiful, intuitive, and modern design crafted for maximum usability.</p>
             </div>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div onclick="openGallery(0)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png" alt="Dashboard" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-6 lg:gap-8 justify-items-center">
+                
+                <!-- Phone 1: Dashboard -->
+                <div class="group relative w-[260px] md:w-[240px] xl:w-[280px] h-[550px] transition-transform duration-500 hover:-translate-y-4">
+                    <div class="glass-phone absolute inset-0 rounded-[2.5rem] p-2 flex flex-col items-center">
+                        <!-- Camera Notch / Dynamic Pill -->
+                        <div class="absolute top-4 w-24 h-6 bg-black/80 rounded-full z-20 flex justify-center items-center backdrop-blur-md shadow-inner border border-white/5">
+                            <div class="w-2 h-2 rounded-full bg-blue-900/50 mr-4"></div>
+                            <div class="w-3 h-3 rounded-full bg-black border border-white/10 flex items-center justify-center">
+                                <div class="w-1 h-1 rounded-full bg-blue-500/50"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Screen Content -->
+                        <div class="w-full h-full rounded-[2rem] overflow-hidden bg-black/80 relative z-10">
+                            <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png" alt="Dashboard" class="w-full h-full object-cover">
+                        </div>
+                        
+                        <!-- Screen Glare Overlay -->
+                        <div class="phone-glare absolute inset-0 rounded-[2.5rem] pointer-events-none z-30 opacity-70"></div>
+                    </div>
+                    <!-- Ambient Glow -->
+                    <div class="absolute -inset-1 bg-gradient-to-r from-blue-500/0 via-blue-400/20 to-blue-500/0 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-500 -z-10"></div>
                 </div>
-                <div onclick="openGallery(1)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png" alt="Document Vault" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
+
+                <!-- Phone 2: Document Vault -->
+                <div class="group relative w-[260px] md:w-[240px] xl:w-[280px] h-[550px] transition-transform duration-500 hover:-translate-y-4 lg:translate-y-8 lg:hover:translate-y-4">
+                    <div class="glass-phone absolute inset-0 rounded-[2.5rem] p-2 flex flex-col items-center">
+                        <div class="absolute top-4 w-24 h-6 bg-black/80 rounded-full z-20 flex justify-center items-center backdrop-blur-md shadow-inner border border-white/5">
+                            <div class="w-2 h-2 rounded-full bg-blue-900/50 mr-4"></div>
+                            <div class="w-3 h-3 rounded-full bg-black border border-white/10 flex items-center justify-center">
+                                <div class="w-1 h-1 rounded-full bg-blue-500/50"></div>
+                            </div>
+                        </div>
+                        <div class="w-full h-full rounded-[2rem] overflow-hidden bg-black/80 relative z-10">
+                            <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png" alt="Document Vault" class="w-full h-full object-cover">
+                        </div>
+                        <div class="phone-glare absolute inset-0 rounded-[2.5rem] pointer-events-none z-30 opacity-70"></div>
+                    </div>
+                    <div class="absolute -inset-1 bg-gradient-to-r from-pink-500/0 via-pink-400/20 to-pink-500/0 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-500 -z-10"></div>
                 </div>
-                <div onclick="openGallery(2)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png" alt="Password Vault" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
+
+                <!-- Phone 3: Password Vault -->
+                <div class="group relative w-[260px] md:w-[240px] xl:w-[280px] h-[550px] transition-transform duration-500 hover:-translate-y-4">
+                    <div class="glass-phone absolute inset-0 rounded-[2.5rem] p-2 flex flex-col items-center">
+                        <div class="absolute top-4 w-24 h-6 bg-black/80 rounded-full z-20 flex justify-center items-center backdrop-blur-md shadow-inner border border-white/5">
+                            <div class="w-2 h-2 rounded-full bg-blue-900/50 mr-4"></div>
+                            <div class="w-3 h-3 rounded-full bg-black border border-white/10 flex items-center justify-center">
+                                <div class="w-1 h-1 rounded-full bg-blue-500/50"></div>
+                            </div>
+                        </div>
+                        <div class="w-full h-full rounded-[2rem] overflow-hidden bg-black/80 relative z-10">
+                            <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png" alt="Password Vault" class="w-full h-full object-cover">
+                        </div>
+                        <div class="phone-glare absolute inset-0 rounded-[2.5rem] pointer-events-none z-30 opacity-70"></div>
+                    </div>
+                    <div class="absolute -inset-1 bg-gradient-to-r from-yellow-500/0 via-yellow-400/20 to-yellow-500/0 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-500 -z-10"></div>
                 </div>
-                <div onclick="openGallery(3)" class="glass-card p-4 flex justify-center items-center overflow-hidden group h-96 cursor-pointer hover:border-pink-400/50">
-                    <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png" alt="Settings" class="h-full object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-xl">
+
+                <!-- Phone 4: Settings -->
+                <div class="group relative w-[260px] md:w-[240px] xl:w-[280px] h-[550px] transition-transform duration-500 hover:-translate-y-4 lg:translate-y-8 lg:hover:translate-y-4">
+                    <div class="glass-phone absolute inset-0 rounded-[2.5rem] p-2 flex flex-col items-center">
+                        <div class="absolute top-4 w-24 h-6 bg-black/80 rounded-full z-20 flex justify-center items-center backdrop-blur-md shadow-inner border border-white/5">
+                            <div class="w-2 h-2 rounded-full bg-blue-900/50 mr-4"></div>
+                            <div class="w-3 h-3 rounded-full bg-black border border-white/10 flex items-center justify-center">
+                                <div class="w-1 h-1 rounded-full bg-blue-500/50"></div>
+                            </div>
+                        </div>
+                        <div class="w-full h-full rounded-[2rem] overflow-hidden bg-black/80 relative z-10">
+                            <img src="https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png" alt="Settings" class="w-full h-full object-cover">
+                        </div>
+                        <div class="phone-glare absolute inset-0 rounded-[2.5rem] pointer-events-none z-30 opacity-70"></div>
+                    </div>
+                    <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500/0 via-indigo-400/20 to-indigo-500/0 rounded-[3rem] blur-xl opacity-0 group-hover:opacity-100 transition duration-500 -z-10"></div>
                 </div>
+                
             </div>
         </section>
 
         <!-- Security Features Section -->
-        <section id="security" class="container mx-auto px-6 py-20 relative z-10">
+        <section id="security" class="container mx-auto px-6 py-20 mt-10 relative z-10">
             <div class="text-center mb-16">
                 <h2 class="text-4xl md:text-5xl font-bold mb-4 text-glow">"Your private vault. Always offline."</h2>
                 <p class="text-lg text-white/70 max-w-2xl mx-auto font-light">
@@ -342,29 +418,6 @@
         </div>
     </div>
 
-    <!-- Image Zoom Gallery Modal -->
-    <div id="galleryModal" onclick="closeGallery()" class="fixed inset-0 z-[110] hidden items-center justify-center bg-slate-900/90 backdrop-blur-md opacity-0 transition-opacity duration-300">
-        <button onclick="closeGallery()" class="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-50 p-2">
-            <i class="fa-solid fa-xmark text-3xl"></i>
-        </button>
-
-        <button onclick="prevImage(event)" class="absolute left-4 md:left-10 text-white/50 hover:text-white hover:scale-110 transition-all z-50 p-4 bg-white/5 rounded-full hover:bg-white/10">
-            <i class="fa-solid fa-chevron-left text-2xl"></i>
-        </button>
-
-        <div class="relative flex justify-center items-center h-[85vh] w-[85vw] max-w-5xl pointer-events-none">
-            <img id="galleryImage" src="" alt="Zoomed Interface" class="max-h-full max-w-full object-contain zoom-transition scale-90 opacity-0 rounded-2xl shadow-2xl pointer-events-auto" onclick="event.stopPropagation()">
-        </div>
-
-        <button onclick="nextImage(event)" class="absolute right-4 md:right-10 text-white/50 hover:text-white hover:scale-110 transition-all z-50 p-4 bg-white/5 rounded-full hover:bg-white/10">
-            <i class="fa-solid fa-chevron-right text-2xl"></i>
-        </button>
-        
-        <div class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 font-medium tracking-widest text-sm bg-black/40 px-4 py-2 rounded-full backdrop-blur-md">
-            <span id="galleryCounter">1</span> / 4
-        </div>
-    </div>
-
     <!-- Scripts -->
     <script>
         // --- Tip Modal Logic ---
@@ -390,80 +443,6 @@
                 }, 300);
             }
         }
-
-        // --- Gallery Zoom Logic ---
-        const galleryImages = [
-            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/dashboard.png",
-            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/doc.vault.png",
-            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/pass.vault.png",
-            "https://raw.githubusercontent.com/satya-git-ai/DocPass-Android/main/app/settings.png"
-        ];
-        
-        let currentImgIndex = 0;
-        const galleryModal = document.getElementById('galleryModal');
-        const galleryImgEl = document.getElementById('galleryImage');
-        const galleryCounter = document.getElementById('galleryCounter');
-
-        function openGallery(index) {
-            currentImgIndex = index;
-            
-            galleryImgEl.src = galleryImages[currentImgIndex];
-            galleryCounter.innerText = currentImgIndex + 1;
-            
-            galleryModal.classList.remove('hidden');
-            galleryModal.classList.add('flex');
-            
-            setTimeout(() => {
-                galleryModal.classList.remove('opacity-0');
-                galleryImgEl.classList.remove('scale-90', 'opacity-0');
-                galleryImgEl.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-
-        function closeGallery() {
-            galleryModal.classList.add('opacity-0');
-            galleryImgEl.classList.remove('scale-100', 'opacity-100');
-            galleryImgEl.classList.add('scale-90', 'opacity-0');
-            
-            setTimeout(() => {
-                galleryModal.classList.add('hidden');
-                galleryModal.classList.remove('flex');
-                galleryImgEl.src = ""; 
-            }, 300);
-        }
-
-        function animateGalleryChange() {
-            galleryImgEl.classList.remove('scale-100', 'opacity-100');
-            galleryImgEl.classList.add('scale-95', 'opacity-0');
-            
-            setTimeout(() => {
-                galleryImgEl.src = galleryImages[currentImgIndex];
-                galleryCounter.innerText = currentImgIndex + 1;
-                
-                galleryImgEl.classList.remove('scale-95', 'opacity-0');
-                galleryImgEl.classList.add('scale-100', 'opacity-100');
-            }, 200); 
-        }
-
-        function prevImage(e) {
-            if(e) e.stopPropagation();
-            currentImgIndex = (currentImgIndex - 1 + galleryImages.length) % galleryImages.length;
-            animateGalleryChange();
-        }
-
-        function nextImage(e) {
-            if(e) e.stopPropagation();
-            currentImgIndex = (currentImgIndex + 1) % galleryImages.length;
-            animateGalleryChange();
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (!galleryModal.classList.contains('hidden')) {
-                if (e.key === 'ArrowLeft') prevImage();
-                if (e.key === 'ArrowRight') nextImage();
-                if (e.key === 'Escape') closeGallery();
-            }
-        });
     </script>
 </body>
 </html>
