@@ -52,6 +52,7 @@ import com.example.ui.components.ChangePinDialog
 import com.example.ui.components.ConfirmDeleteDialog
 import com.example.ui.components.DocumentDetailDialog
 import com.example.ui.components.ExportBackupDialog
+import com.example.ui.components.GiveTipDialog
 import com.example.ui.components.ImportBackupDialog
 import com.example.ui.components.PasswordDetailDialog
 import com.example.ui.components.PasswordGeneratorDialog
@@ -139,6 +140,7 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
 
     var showChangePinDialog by remember { mutableStateOf(false) }
     var showPasswordGeneratorDialog by remember { mutableStateOf(false) }
+    var showTipDialog by remember { mutableStateOf(false) }
     var showExportBackupDialog by remember { mutableStateOf(false) }
     var showImportBackupDialog by remember { mutableStateOf(false) }
     var showWipeVaultDialog by remember { mutableStateOf(false) }
@@ -258,8 +260,6 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
                                 documentCount = documentCount,
                                 passwordCount = passwordCount,
                                 totalStorageBytes = totalStorageBytes,
-                                recentDocuments = allDocs,
-                                recentPasswords = allPwds,
                                 themeMode = themeMode,
                                 onToggleTheme = {
                                     val isCurrentlyDark = when (themeMode) {
@@ -278,8 +278,7 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
                                 onAddDocument = { showAddDocDialog = true },
                                 onAddPassword = { showAddPwdDialog = true },
                                 onOpenPasswordGenerator = { showPasswordGeneratorDialog = true },
-                                onSelectDocument = { selectedDoc = it },
-                                onSelectPassword = { selectedPwd = it }
+                                onGiveTip = { showTipDialog = true }
                             )
                         }
                         VaultTab.DOCUMENTS -> {
@@ -290,6 +289,10 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
                                 onCategorySelected = { viewModel.setDocumentCategoryFilter(it) },
                                 onSearchQueryChange = { viewModel.setDocumentSearchQuery(it) },
                                 onAddDocument = { showAddDocDialog = true },
+                                onUploadMultipleFiles = { uris ->
+                                    val cat = if (docCategoryFilter != "All") docCategoryFilter else "Personal"
+                                    viewModel.addMultipleDocuments(uris, cat) { _, _ -> }
+                                },
                                 onSelectDocument = { selectedDoc = it }
                             )
                         }
@@ -323,7 +326,8 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
                                 onExportBackup = { showExportBackupDialog = true },
                                 onImportBackup = { showImportBackupDialog = true },
                                 onWipeVault = { showWipeVaultDialog = true },
-                                onLockNow = { viewModel.lockNow() }
+                                onLockNow = { viewModel.lockNow() },
+                                onGiveTip = { showTipDialog = true }
                             )
                         }
                     }
@@ -334,8 +338,10 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
 
     // Add Document Dialog
     if (showAddDocDialog) {
+        val defaultDocCategory = if (docCategoryFilter != "All") docCategoryFilter else "Personal"
         AddEditDocumentDialog(
             documentToEdit = null,
+            initialCategory = defaultDocCategory,
             initialDecryptedNotes = "",
             onDismiss = { showAddDocDialog = false },
             onSave = { name, category, notes, uri ->
@@ -354,6 +360,7 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
         val decryptedNotes = remember(currentDoc) { viewModel.decryptNotes(currentDoc.encryptedNotes) }
         AddEditDocumentDialog(
             documentToEdit = currentDoc,
+            initialCategory = currentDoc.category,
             initialDecryptedNotes = decryptedNotes,
             onDismiss = { docToEdit = null },
             onSave = { name, category, notes, newUri ->
@@ -403,8 +410,10 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
 
     // Add Password Dialog
     if (showAddPwdDialog) {
+        val defaultPwdCategory = if (pwdCategoryFilter != "All") pwdCategoryFilter else "Bank"
         AddEditPasswordDialog(
             passwordToEdit = null,
+            initialCategory = defaultPwdCategory,
             initialPlainPassword = "",
             initialDecryptedNotes = "",
             onDismiss = { showAddPwdDialog = false },
@@ -533,6 +542,13 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
                     showWipeVaultDialog = false
                 }
             }
+        )
+    }
+
+    // Give Tip & Support Dialog
+    if (showTipDialog) {
+        GiveTipDialog(
+            onDismiss = { showTipDialog = false }
         )
     }
 }

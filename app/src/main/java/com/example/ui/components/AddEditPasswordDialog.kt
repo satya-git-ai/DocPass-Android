@@ -53,6 +53,7 @@ import com.example.ui.theme.Navy950
 @Composable
 fun AddEditPasswordDialog(
     passwordToEdit: PasswordEntity? = null,
+    initialCategory: String = "Bank",
     initialPlainPassword: String = "",
     initialDecryptedNotes: String = "",
     onDismiss: () -> Unit,
@@ -66,7 +67,7 @@ fun AddEditPasswordDialog(
     ) -> Unit
 ) {
     var title by remember { mutableStateOf(passwordToEdit?.title ?: "") }
-    var category by remember { mutableStateOf(passwordToEdit?.category ?: "Bank") }
+    var category by remember { mutableStateOf(passwordToEdit?.category ?: initialCategory) }
     var username by remember { mutableStateOf(passwordToEdit?.username ?: "") }
     var accountIdentifier by remember { mutableStateOf(passwordToEdit?.accountIdentifier ?: "") }
     var password by remember { mutableStateOf(initialPlainPassword) }

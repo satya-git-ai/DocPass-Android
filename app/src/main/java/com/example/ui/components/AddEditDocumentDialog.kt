@@ -56,13 +56,14 @@ import com.example.ui.theme.Navy950
 @Composable
 fun AddEditDocumentDialog(
     documentToEdit: DocumentEntity? = null,
+    initialCategory: String = "Personal",
     initialDecryptedNotes: String = "",
     onDismiss: () -> Unit,
     onSave: (name: String, category: String, notes: String, fileUri: Uri?) -> Unit
 ) {
     val context = LocalContext.current
     var name by remember { mutableStateOf(documentToEdit?.name ?: "") }
-    var category by remember { mutableStateOf(documentToEdit?.category ?: "Personal") }
+    var category by remember { mutableStateOf(documentToEdit?.category ?: initialCategory) }
     var notes by remember { mutableStateOf(initialDecryptedNotes) }
     var selectedFileUri by remember { mutableStateOf<Uri?>(null) }
     var selectedFileName by remember { mutableStateOf(documentToEdit?.fileName ?: "") }
@@ -94,7 +95,26 @@ fun AddEditDocumentDialog(
             if (resolvedSize <= 0L) {
                 try {
                     context.contentResolver.openAssetFileDescriptor(uri, "r")?.use {
-                        resolvedSize = it.length
+                        if (it.length > 0) resolvedSize = it.length
+                    }
+                } catch (_: Exception) {}
+            }
+
+            // If size is still not resolved, measure from input stream directly
+            if (resolvedSize <= 0L) {
+                try {
+                    context.contentResolver.openInputStream(uri)?.use { stream ->
+                        var total = 0L
+                        val buffer = ByteArray(8192)
+                        var read: Int
+                        while (stream.read(buffer).also { read = it } != -1) {
+                            total += read
+                            if (total > 4L * 1024L * 1024L) {
+                                total = 4L * 1024L * 1024L + 1
+                                break
+                            }
+                        }
+                        resolvedSize = total
                     }
                 } catch (_: Exception) {}
             }
@@ -112,10 +132,10 @@ fun AddEditDocumentDialog(
             }
 
             if (isJpg) {
-                val maxJpgSizeBytes = 4L * 1024L * 1024L // 4MB
+                val maxJpgSizeBytes = 4L * 1024L * 1024L // 4,194,304 bytes = 4MB
                 if (resolvedSize > maxJpgSizeBytes) {
-                    val sizeMb = String.format("%.2f", resolvedSize / (1024.0 * 1024.0))
-                    errorMessage = "JPG file size exceeds 4MB limit (Selected: ${sizeMb} MB)."
+                    val sizeMb = String.format(java.util.Locale.US, "%.2f", resolvedSize / (1024.0 * 1024.0))
+                    errorMessage = "JPG file size exceeds 4MB limit (Selected: ${sizeMb} MB. 4.1MB, 4.2MB or higher is not allowed)."
                     selectedFileUri = null
                     selectedFileName = ""
                     return@rememberLauncherForActivityResult

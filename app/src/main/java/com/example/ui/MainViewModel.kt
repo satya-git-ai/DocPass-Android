@@ -312,6 +312,32 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addMultipleDocuments(
+        uris: List<Uri>,
+        category: String = "Personal",
+        onComplete: (Int, List<String>) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val (successCount, errors) = repository.addMultipleDocuments(uris, category)
+                refreshStorageStats()
+                onComplete(successCount, errors)
+                if (successCount > 0) {
+                    val msg = if (errors.isEmpty()) {
+                        "$successCount documents encrypted and stored in vault."
+                    } else {
+                        "$successCount documents stored (${errors.size} skipped/failed)."
+                    }
+                    _uiEvents.emit(UiEvent.ShowSnackbar(msg))
+                } else if (errors.isNotEmpty()) {
+                    _uiEvents.emit(UiEvent.ShowSnackbar(errors.first()))
+                }
+            } catch (e: Exception) {
+                onComplete(0, listOf(e.message ?: "Failed to import documents"))
+            }
+        }
+    }
+
     fun updateDocument(
         id: Long,
         name: String,

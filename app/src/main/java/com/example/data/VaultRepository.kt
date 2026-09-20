@@ -80,6 +80,15 @@ class VaultRepository(
         val rawBytes = context.contentResolver.openInputStream(fileUri)?.use { it.readBytes() }
             ?: throw IllegalStateException("Unable to read source document file")
 
+        // Strict 4MB check for JPG/JPEG (e.g. 4.1MB, 4.2MB strictly rejected)
+        val ext = resolvedFileName.substringAfterLast('.', "").lowercase()
+        val isJpg = ext == "jpg" || ext == "jpeg" || resolvedMimeType.contains("jpeg") || resolvedMimeType.contains("jpg")
+        val maxJpgSizeBytes = 4L * 1024L * 1024L // 4,194,304 bytes = 4MB
+        if (isJpg && rawBytes.size > maxJpgSizeBytes) {
+            val sizeMb = String.format(java.util.Locale.US, "%.2f", rawBytes.size / (1024.0 * 1024.0))
+            throw IllegalArgumentException("JPG file size exceeds 4MB limit (${sizeMb} MB is not allowed).")
+        }
+
         if (resolvedSize <= 0L) {
             resolvedSize = rawBytes.size.toLong()
         }
@@ -106,6 +115,91 @@ class VaultRepository(
         )
 
         documentDao.insertDocument(entity)
+    }
+
+    suspend fun addMultipleDocuments(
+        uris: List<Uri>,
+        defaultCategory: String = "Personal"
+    ): Pair<Int, List<String>> = withContext(Dispatchers.IO) {
+        val vmk = sessionManager.getVaultMasterKey()
+        var successCount = 0
+        val errors = mutableListOf<String>()
+        val maxJpgSizeBytes = 4L * 1024L * 1024L // 4MB
+
+        for (uri in uris) {
+            try {
+                var resolvedFileName = "document_${System.currentTimeMillis()}"
+                var resolvedMimeType = context.contentResolver.getType(uri) ?: "application/octet-stream"
+                var resolvedSize = 0L
+
+                context.contentResolver.query(uri, null, null, null, null)?.use { cursor ->
+                    val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                    if (cursor.moveToFirst()) {
+                        if (nameIndex != -1) {
+                            val displayName = cursor.getString(nameIndex)
+                            if (!displayName.isNullOrBlank()) resolvedFileName = displayName
+                        }
+                        if (sizeIndex != -1) {
+                            resolvedSize = cursor.getLong(sizeIndex)
+                        }
+                    }
+                }
+
+                val ext = resolvedFileName.substringAfterLast('.', "").lowercase()
+                val isPdf = ext == "pdf" || resolvedMimeType == "application/pdf"
+                val isJpg = ext == "jpg" || ext == "jpeg" || resolvedMimeType.contains("jpeg") || resolvedMimeType.contains("jpg")
+
+                if (!isPdf && !isJpg) {
+                    errors.add("$resolvedFileName: Skipped (Only PDF and JPG files supported)")
+                    continue
+                }
+
+                val rawBytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                if (rawBytes == null) {
+                    errors.add("$resolvedFileName: Unable to read file")
+                    continue
+                }
+
+                if (isJpg && rawBytes.size > maxJpgSizeBytes) {
+                    val sizeMb = String.format(java.util.Locale.US, "%.2f", rawBytes.size / (1024.0 * 1024.0))
+                    errors.add("$resolvedFileName: Skipped (JPG exceeds 4MB limit: ${sizeMb} MB)")
+                    continue
+                }
+
+                if (resolvedSize <= 0L) {
+                    resolvedSize = rawBytes.size.toLong()
+                }
+
+                val docId = UUID.randomUUID().toString()
+                val encFileName = "$docId.enc"
+                val encFile = File(vaultDocsDir, encFileName)
+
+                val encryptedBytes = CryptoManager.encryptBytes(rawBytes, vmk)
+                encFile.writeBytes(encryptedBytes)
+
+                val docName = resolvedFileName.substringBeforeLast(".")
+
+                val entity = DocumentEntity(
+                    name = if (docName.isNotBlank()) docName else resolvedFileName,
+                    category = defaultCategory,
+                    fileName = resolvedFileName,
+                    mimeType = resolvedMimeType,
+                    fileSizeBytes = resolvedSize,
+                    encryptedFilePath = encFileName,
+                    encryptedNotes = "",
+                    createdAt = System.currentTimeMillis(),
+                    modifiedAt = System.currentTimeMillis()
+                )
+
+                documentDao.insertDocument(entity)
+                successCount++
+            } catch (e: Exception) {
+                errors.add("Error: ${e.message}")
+            }
+        }
+
+        Pair(successCount, errors)
     }
 
     suspend fun updateDocument(
@@ -143,6 +237,14 @@ class VaultRepository(
 
             val rawBytes = context.contentResolver.openInputStream(newFileUri)?.use { it.readBytes() }
                 ?: throw IllegalStateException("Unable to read new file")
+
+            val ext = resolvedFileName.substringAfterLast('.', "").lowercase()
+            val isJpg = ext == "jpg" || ext == "jpeg" || resolvedMimeType.contains("jpeg") || resolvedMimeType.contains("jpg")
+            val maxJpgSizeBytes = 4L * 1024L * 1024L
+            if (isJpg && rawBytes.size > maxJpgSizeBytes) {
+                val sizeMb = String.format(java.util.Locale.US, "%.2f", rawBytes.size / (1024.0 * 1024.0))
+                throw IllegalArgumentException("JPG file size exceeds 4MB limit (${sizeMb} MB is not allowed).")
+            }
 
             if (resolvedSize <= 0L) resolvedSize = rawBytes.size.toLong()
 
