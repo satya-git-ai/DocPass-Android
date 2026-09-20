@@ -18,9 +18,9 @@ object BiometricHelper {
 
     fun showBiometricPrompt(
         activity: FragmentActivity,
-        title: String = "Unlock Privault",
+        title: String = "Unlock DocPass",
         subtitle: String = "Verify your biometric identity",
-        negativeButtonText: String = "Use PIN",
+        negativeButtonText: String = "Use Password",
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {

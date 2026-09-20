@@ -13,15 +13,16 @@ object PasswordGenerator {
     private const val SYMBOLS = "!@#$%^&*()-_=+[]{}|;:,.<>?"
     private const val AMBIGUOUS = "il1Lo0O"
 
-    // Curated friendly words for memorable password generation like "Apple@33"
+    // Curated friendly, easy-to-type words for memorable password generation
     private val MEMORABLE_WORDS = listOf(
         "Apple", "Orange", "Banana", "Cherry", "Mango", "Peach", "Berry", "Lemon", "Melon", "Grape", "Papaya",
-        "Falcon", "Tiger", "Eagle", "Dolphin", "Panda", "Rabbit", "Koala", "Jaguar", "Leopard", "Badger",
+        "Falcon", "Tiger", "Eagle", "Dolphin", "Panda", "Rabbit", "Koala", "Jaguar", "Leopard",
         "Planet", "Rocket", "Comet", "Galaxy", "Cosmos", "Meteor", "Saturn", "Jupiter", "Apollo",
         "Silver", "Golden", "Bronze", "Cobalt", "Quartz", "Emerald", "Diamond", "Amber", "Velvet",
-        "Castle", "Bridge", "Anchor", "Beacon", "Shield", "Summit", "Forest", "Breeze", "Canyon", "Willow", "Harbor",
+        "Castle", "Bridge", "Anchor", "Beacon", "Shield", "Summit", "Forest", "Breeze", "Canyon",
         "Guitar", "Canvas", "Pencil", "Lantern", "Compass", "Pocket", "Camera", "Mirror", "Puzzle", "River",
-        "Ocean", "Meadow", "Valley", "Timber", "Spark", "Shadow", "Horizon", "Clover", "Zenith", "Bliss"
+        "Ocean", "Meadow", "Valley", "Timber", "Spark", "Shadow", "Horizon", "Clover", "Zenith", "Cloud",
+        "Summer", "Winter", "Spring", "Autumn", "Matrix", "Cyber", "Nova", "Solar", "Focus", "Prime"
     )
 
     private val MEMORABLE_SYMBOLS = charArrayOf('@', '#', '$', '!', '%', '&', '*')
@@ -46,18 +47,24 @@ object PasswordGenerator {
     )
 
     /**
-     * Generates a friendly, memorable password in the requested format (e.g., Apple@33).
+     * Generates a friendly, memorable, easy-to-type password in the requested format (e.g., Apple@12).
      * Satisfies all policy requirements (Uppercase, Lowercase, Number, Special Character, 8+ chars).
      */
     fun generateMemorable(): String {
-        val word = MEMORABLE_WORDS[secureRandom.nextInt(MEMORABLE_WORDS.size)]
-        val symbol = MEMORABLE_SYMBOLS[secureRandom.nextInt(MEMORABLE_SYMBOLS.size)]
-        val number = 10 + secureRandom.nextInt(90) // 10..99
-        return "$word$symbol$number"
+        while (true) {
+            val word = MEMORABLE_WORDS[secureRandom.nextInt(MEMORABLE_WORDS.size)]
+            val symbol = MEMORABLE_SYMBOLS[secureRandom.nextInt(MEMORABLE_SYMBOLS.size)]
+            val number = 10 + secureRandom.nextInt(90) // 10..99
+            val candidate = "$word$symbol$number"
+            if (!PasswordPolicy.validate(candidate).isValid) {
+                continue
+            }
+            return candidate
+        }
     }
 
     /**
-     * Default generator: generates memorable passwords like 'Apple@33'
+     * Default generator: generates easy to type memorable passwords
      */
     fun generate(): String {
         return generateMemorable()

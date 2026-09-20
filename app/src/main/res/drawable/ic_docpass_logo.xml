@@ -6,7 +6,7 @@
     android:viewportWidth="100"
     android:viewportHeight="100">
 
-    <!-- Background rounded emblem -->
+    <!-- Background rounded emblem - Light, modern & radiant -->
     <path
         android:pathData="M20,6 C12.2,6 6,12.2 6,20 L6,80 C6,87.8 12.2,94 20,94 L80,94 C87.8,94 94,87.8 94,80 L94,20 C94,12.2 87.8,6 80,6 Z">
         <aapt:attr name="android:fillColor">
@@ -16,25 +16,32 @@
                 android:endX="94"
                 android:endY="94"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FF0B1528" />
-                <item android:offset="1.0" android:color="#FF030712" />
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="0.5" android:color="#FFE0F2FE" />
+                <item android:offset="1.0" android:color="#FFD1FAE5" />
             </gradient>
         </aapt:attr>
     </path>
 
+    <!-- Emblem Subtle Border -->
+    <path
+        android:pathData="M20,6 C12.2,6 6,12.2 6,20 L6,80 C6,87.8 12.2,94 20,94 L80,94 C87.8,94 94,87.8 94,80 L94,20 C94,12.2 87.8,6 80,6 Z"
+        android:strokeWidth="1.5"
+        android:strokeColor="#FF38BDF8"
+        android:fillColor="#00000000" />
+
     <!-- Document 2 (Background Stacked Page) -->
     <path
         android:pathData="M32,18 L68,18 C70.2,18 72,19.8 72,22 L72,66 C72,68.2 70.2,70 68,70 L32,70 C29.8,70 28,68.2 28,66 L28,22 C28,19.8 29.8,18 32,18 Z"
-        android:fillColor="#2200B4D8"
+        android:fillColor="#3300B4D8"
         android:strokeWidth="1.2"
-        android:strokeColor="#4400B4D8" />
+        android:strokeColor="#660284C7" />
 
-    <!-- Document 1 Main Body with Folded Corner -->
-    <!-- Main base path -->
+    <!-- Document 1 Main Body with Folded Corner - Clean White to Ice Cyan -->
     <path
         android:pathData="M24,24 L56,24 L68,36 L68,82 C68,84.2 66.2,86 64,86 L24,86 C21.8,86 20,84.2 20,82 L20,28 C20,25.8 21.8,24 24,24 Z"
         android:strokeWidth="2.2"
-        android:strokeColor="#FF00B4D8">
+        android:strokeColor="#FF0284C7">
         <aapt:attr name="android:fillColor">
             <gradient
                 android:startX="20"
@@ -42,8 +49,8 @@
                 android:endX="68"
                 android:endY="86"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FF162A45" />
-                <item android:offset="1.0" android:color="#FF0D1B2A" />
+                <item android:offset="0.0" android:color="#FFFFFFFF" />
+                <item android:offset="1.0" android:color="#FFEBF8FF" />
             </gradient>
         </aapt:attr>
     </path>
@@ -51,34 +58,34 @@
     <!-- Document Fold Triangle -->
     <path
         android:pathData="M56,24 L68,36 L56,36 Z"
-        android:fillColor="#FF00B4D8" />
+        android:fillColor="#FF0284C7" />
 
     <!-- Document Line 1 -->
     <path
         android:pathData="M28,42 L48,42"
-        android:strokeWidth="2"
-        android:strokeColor="#6690E0EF"
+        android:strokeWidth="2.2"
+        android:strokeColor="#FF0284C7"
         android:strokeLineCap="round" />
 
     <!-- Document Line 2 -->
     <path
         android:pathData="M28,50 L42,50"
-        android:strokeWidth="2"
-        android:strokeColor="#4490E0EF"
+        android:strokeWidth="2.2"
+        android:strokeColor="#FF38BDF8"
         android:strokeLineCap="round" />
 
     <!-- Document Line 3 -->
     <path
         android:pathData="M28,58 L38,58"
-        android:strokeWidth="2"
-        android:strokeColor="#3390E0EF"
+        android:strokeWidth="2.2"
+        android:strokeColor="#FF94A3B8"
         android:strokeLineCap="round" />
 
-    <!-- Secure Shield (Right Overlaid) -->
+    <!-- Secure Shield (Right Overlaid) - Radiant Bright Emerald -->
     <path
         android:pathData="M68,44 L86,51 C86,70 79,81 68,90 C57,81 50,70 50,51 Z"
-        android:strokeWidth="2.8"
-        android:strokeColor="#FF10B981"
+        android:strokeWidth="2.5"
+        android:strokeColor="#FF059669"
         android:strokeLineJoin="round">
         <aapt:attr name="android:fillColor">
             <gradient
@@ -87,8 +94,8 @@
                 android:endX="86"
                 android:endY="90"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FF064E3B" />
-                <item android:offset="1.0" android:color="#FF022C22" />
+                <item android:offset="0.0" android:color="#FF10B981" />
+                <item android:offset="1.0" android:color="#FF059669" />
             </gradient>
         </aapt:attr>
     </path>
@@ -97,17 +104,17 @@
     <path
         android:pathData="M64,62 C64,59.8 65.8,58 68,58 C70.2,58 72,59.8 72,62 L72,65 L64,65 Z"
         android:strokeWidth="2"
-        android:strokeColor="#FF90E0EF"
+        android:strokeColor="#FFFFFFFF"
         android:fillColor="#00000000" />
 
     <!-- Padlock Body on Shield -->
     <path
         android:pathData="M61,65 H75 A2,2 0 0,1 77,67 V76 A2,2 0 0,1 75,78 H61 A2,2 0 0,1 59,76 V67 A2,2 0 0,1 61,65 Z"
-        android:fillColor="#FF10B981" />
+        android:fillColor="#FFFFFFFF" />
 
     <!-- Keyhole -->
     <path
         android:pathData="M68,69 A1.8,1.8 0 0,0 66.8,71.8 L66,75.2 H70 L69.2,71.8 A1.8,1.8 0 0,0 68,69 Z"
-        android:fillColor="#FF022C22" />
+        android:fillColor="#FF059669" />
 
 </vector>

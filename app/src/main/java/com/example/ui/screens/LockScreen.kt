@@ -375,6 +375,7 @@ private fun MasterPasswordUnlockView(
 
     LaunchedEffect(biometricEnabled) {
         if (biometricEnabled && BiometricHelper.isBiometricAvailable(context)) {
+            kotlinx.coroutines.delay(200)
             onBiometricUnlock()
         }
     }

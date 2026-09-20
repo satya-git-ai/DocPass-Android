@@ -28,16 +28,15 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.DriveFolderUpload
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.FolderOpen
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.PictureAsPdf
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -45,12 +44,12 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -77,15 +76,14 @@ fun DocumentsScreen(
     searchQuery: String,
     onCategorySelected: (String) -> Unit,
     onSearchQueryChange: (String) -> Unit,
-    onAddDocument: () -> Unit,
+    onAddDocument: () -> Unit = {},
     onUploadMultipleFiles: (List<Uri>) -> Unit = {},
     onSelectDocument: (DocumentEntity) -> Unit
 ) {
     val context = LocalContext.current
     val categories = listOf("All", "Education", "Government", "Personal", "Other")
 
-    val allowedMimeTypes = remember { arrayOf("application/pdf", "image/jpeg", "image/jpg") }
-    val multiFilePickerLauncher = rememberLauncherForActivityResult(
+    val multiDocPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenMultipleDocuments()
     ) { uris: List<Uri> ->
         if (uris.isNotEmpty()) {
@@ -95,28 +93,26 @@ fun DocumentsScreen(
 
     Scaffold(
         floatingActionButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // Multi-file upload FAB button
-                FloatingActionButton(
-                    onClick = { multiFilePickerLauncher.launch(allowedMimeTypes) },
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.testTag("fab_upload_multiple_documents")
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 14.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(Icons.Filled.DriveFolderUpload, contentDescription = "Upload Multiple Files", modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text("Multi-Upload", fontWeight = FontWeight.Bold, fontSize = 13.sp)
-                    }
-                }
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        multiDocPickerLauncher.launch(arrayOf("application/pdf", "image/*"))
+                    },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.DriveFolderUpload,
+                            contentDescription = "Multi-Upload Documents"
+                        )
+                    },
+                    text = { Text("Multi-Upload", fontWeight = FontWeight.SemiBold) },
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = CyanPrimary,
+                    modifier = Modifier.testTag("fab_multi_upload_document")
+                )
 
-                // Single document FAB
                 FloatingActionButton(
                     onClick = onAddDocument,
                     containerColor = CyanPrimary,
@@ -141,19 +137,17 @@ fun DocumentsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 12.dp)
             ) {
-                Column {
-                    Text(
-                        text = "Document Vault",
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = "${documents.size} encrypted files stored on device",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                Text(
+                    text = "Document Vault",
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Text(
+                    text = if (selectedCategory == "All") "${documents.size} encrypted files stored on device" else "${documents.size} encrypted files in $selectedCategory",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
                 Spacer(modifier = Modifier.height(12.dp))
 
@@ -261,44 +255,18 @@ fun DocumentsScreen(
                         Spacer(modifier = Modifier.height(4.dp))
 
                         Text(
-                            text = if (searchQuery.isNotEmpty()) "Try a different search query or category filter." else "Add single files or upload multiple files simultaneously (PDF, JPG up to 4MB). All files are encrypted offline.",
+                            text = if (searchQuery.isNotEmpty()) "Try a different search query or category filter." else "All files are encrypted offline. Use the action buttons below to add or multi-upload documents.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = androidx.compose.ui.text.style.TextAlign.Center,
                             modifier = Modifier.padding(horizontal = 16.dp)
                         )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Button(
-                                onClick = onAddDocument,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = CyanPrimary,
-                                    contentColor = Navy950
-                                ),
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Icon(Icons.Filled.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Add Document", fontWeight = FontWeight.Bold)
-                            }
-
-                            FilledTonalButton(
-                                onClick = { multiFilePickerLauncher.launch(allowedMimeTypes) },
-                                shape = RoundedCornerShape(10.dp)
-                            ) {
-                                Icon(Icons.Filled.DriveFolderUpload, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text("Upload Multiple", fontWeight = FontWeight.Bold)
-                            }
-                        }
                     }
                 }
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 80.dp),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(documents, key = { it.id }) { doc ->

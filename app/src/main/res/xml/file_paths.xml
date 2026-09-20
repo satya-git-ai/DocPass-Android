@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
     <cache-path name="decrypted_cache" path="decrypted/" />
+    <cache-path name="shared_exports" path="shared_exports/" />
     <files-path name="vault_docs" path="vault_documents/" />
 </paths>

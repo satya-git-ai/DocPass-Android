@@ -261,6 +261,7 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
                                 passwordCount = passwordCount,
                                 totalStorageBytes = totalStorageBytes,
                                 themeMode = themeMode,
+                                isBiometricEnabled = biometricEnabled,
                                 onToggleTheme = {
                                     val isCurrentlyDark = when (themeMode) {
                                         com.example.security.ThemeMode.DARK -> true
@@ -273,6 +274,7 @@ fun PrivaultMainApp(viewModel: MainViewModel) {
                                     )
                                 },
                                 onNavigateTab = { viewModel.setActiveTab(it) },
+                                onNavigateToSettings = { viewModel.setActiveTab(VaultTab.SETTINGS) },
                                 onOpenGlobalSearch = { viewModel.setGlobalSearchOpen(true) },
                                 onLockNow = { viewModel.lockNow() },
                                 onAddDocument = { showAddDocDialog = true },

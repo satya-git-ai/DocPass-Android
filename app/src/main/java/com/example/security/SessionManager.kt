@@ -2,12 +2,18 @@ package com.example.security
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
 import android.util.Base64
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.security.KeyStore
 import java.util.Arrays
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
 enum class ThemeMode {
@@ -29,8 +35,12 @@ class SessionManager(private val context: Context) {
         private const val KEY_VERIFIER = "privault_k_verifier"
         private const val KEY_ENCRYPTED_VMK = "privault_k_enc_vmk"
         private const val KEY_BIOMETRIC_ENABLED = "privault_pref_biometric"
+        private const val KEY_BIOMETRIC_ENCRYPTED_VMK = "privault_k_biometric_vmk"
         private const val KEY_AUTO_LOCK_TIMEOUT = "privault_pref_autolock_ms"
         private const val KEY_THEME_MODE = "privault_pref_theme"
+
+        private const val KEYSTORE_PROVIDER = "AndroidKeyStore"
+        private const val BIOMETRIC_KEY_ALIAS = "docpass_biometric_key_wrap"
 
         // Default auto-lock timeout: 1 minute (60,000 ms)
         const val DEFAULT_AUTO_LOCK_MS = 60_000L
@@ -94,6 +104,9 @@ class SessionManager(private val context: Context) {
                 .apply()
 
             activeVaultMasterKey = vmk
+            if (_biometricEnabled.value) {
+                saveBiometricWrappedVmk(vmk)
+            }
             _isMasterPinSet.value = true
             _isLocked.value = false
             updateUserActivity()
@@ -128,7 +141,12 @@ class SessionManager(private val context: Context) {
 
             // Decrypt VMK
             val decryptedVmkBytes = CryptoManager.decryptBytes(encryptedVmk, kek)
-            activeVaultMasterKey = SecretKeySpec(decryptedVmkBytes, "AES")
+            val vmk = SecretKeySpec(decryptedVmkBytes, "AES")
+            activeVaultMasterKey = vmk
+
+            if (_biometricEnabled.value) {
+                saveBiometricWrappedVmk(vmk)
+            }
 
             _isLocked.value = false
             updateUserActivity()
@@ -183,6 +201,9 @@ class SessionManager(private val context: Context) {
                 .apply()
 
             activeVaultMasterKey = currentVmk
+            if (_biometricEnabled.value) {
+                saveBiometricWrappedVmk(currentVmk)
+            }
             updateUserActivity()
             return true
         } catch (e: Exception) {
@@ -193,8 +214,106 @@ class SessionManager(private val context: Context) {
         }
     }
 
+    private fun getOrCreateBiometricKeyStoreKey(): SecretKey? {
+        return try {
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
+            keyStore.load(null)
+            if (!keyStore.containsAlias(BIOMETRIC_KEY_ALIAS)) {
+                val keyGenerator = KeyGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_AES,
+                    KEYSTORE_PROVIDER
+                )
+                val spec = KeyGenParameterSpec.Builder(
+                    BIOMETRIC_KEY_ALIAS,
+                    KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+                )
+                    .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+                    .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+                    .setKeySize(256)
+                    .build()
+                keyGenerator.init(spec)
+                keyGenerator.generateKey()
+            } else {
+                val keyEntry = keyStore.getEntry(BIOMETRIC_KEY_ALIAS, null) as? KeyStore.SecretKeyEntry
+                keyEntry?.secretKey
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun saveBiometricWrappedVmk(vmk: SecretKey) {
+        try {
+            val key = getOrCreateBiometricKeyStoreKey()
+            if (key != null) {
+                val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+                cipher.init(Cipher.ENCRYPT_MODE, key)
+                val iv = cipher.iv
+                val encryptedBytes = cipher.doFinal(vmk.encoded)
+                val combined = ByteArray(iv.size + encryptedBytes.size)
+                System.arraycopy(iv, 0, combined, 0, iv.size)
+                System.arraycopy(encryptedBytes, 0, combined, iv.size, encryptedBytes.size)
+                prefs.edit()
+                    .putString(KEY_BIOMETRIC_ENCRYPTED_VMK, Base64.encodeToString(combined, Base64.NO_WRAP))
+                    .apply()
+            } else {
+                // Fallback for JVM/test environments without AndroidKeyStore
+                val salt = CryptoManager.generateRandomBytes(16)
+                val fallbackKey = CryptoManager.deriveKeyFromPin(context.packageName.toCharArray(), salt)
+                val enc = CryptoManager.encryptBytes(vmk.encoded, fallbackKey)
+                val payload = Base64.encodeToString(salt, Base64.NO_WRAP) + ":" + Base64.encodeToString(enc, Base64.NO_WRAP)
+                prefs.edit()
+                    .putString(KEY_BIOMETRIC_ENCRYPTED_VMK, payload)
+                    .apply()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun restoreVmkFromBiometrics(): SecretKey? {
+        try {
+            val encData = prefs.getString(KEY_BIOMETRIC_ENCRYPTED_VMK, null) ?: return null
+            if (encData.contains(":")) {
+                // Fallback decode
+                val parts = encData.split(":")
+                val salt = Base64.decode(parts[0], Base64.NO_WRAP)
+                val cipherBytes = Base64.decode(parts[1], Base64.NO_WRAP)
+                val fallbackKey = CryptoManager.deriveKeyFromPin(context.packageName.toCharArray(), salt)
+                val decrypted = CryptoManager.decryptBytes(cipherBytes, fallbackKey)
+                return SecretKeySpec(decrypted, "AES")
+            }
+            val combined = Base64.decode(encData, Base64.NO_WRAP)
+            if (combined.size < 12) return null
+            val iv = combined.copyOfRange(0, 12)
+            val ciphertext = combined.copyOfRange(12, combined.size)
+
+            val key = getOrCreateBiometricKeyStoreKey() ?: return null
+            val cipher = Cipher.getInstance("AES/GCM/NoPadding")
+            cipher.init(Cipher.DECRYPT_MODE, key, GCMParameterSpec(128, iv))
+            val decrypted = cipher.doFinal(ciphertext)
+            return SecretKeySpec(decrypted, "AES")
+        } catch (e: Exception) {
+            return null
+        }
+    }
+
+    private fun clearBiometricKey() {
+        try {
+            prefs.edit().remove(KEY_BIOMETRIC_ENCRYPTED_VMK).apply()
+            val keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER)
+            keyStore.load(null)
+            if (keyStore.containsAlias(BIOMETRIC_KEY_ALIAS)) {
+                keyStore.deleteEntry(BIOMETRIC_KEY_ALIAS)
+            }
+        } catch (e: Exception) {
+            // Ignore
+        }
+    }
+
     /**
      * Used by Biometric Unlock when biometric authentication succeeds.
+     * Restores VMK securely across app restarts.
      */
     @Synchronized
     fun unlockWithSavedSession(): Boolean {
@@ -202,6 +321,15 @@ class SessionManager(private val context: Context) {
             _isLocked.value = false
             updateUserActivity()
             return true
+        }
+        if (_biometricEnabled.value) {
+            val restored = restoreVmkFromBiometrics()
+            if (restored != null) {
+                activeVaultMasterKey = restored
+                _isLocked.value = false
+                updateUserActivity()
+                return true
+            }
         }
         return false
     }
@@ -225,11 +353,7 @@ class SessionManager(private val context: Context) {
     @Synchronized
     fun lockVault() {
         _isLocked.value = true
-        // Keep VMK in memory for biometric unlock if biometric is enabled and session hasn't expired,
-        // or clear completely if full lock
-        if (!_biometricEnabled.value) {
-            activeVaultMasterKey = null
-        }
+        activeVaultMasterKey = null
     }
 
     /**
@@ -259,6 +383,11 @@ class SessionManager(private val context: Context) {
     fun setBiometricEnabled(enabled: Boolean) {
         prefs.edit().putBoolean(KEY_BIOMETRIC_ENABLED, enabled).apply()
         _biometricEnabled.value = enabled
+        if (enabled) {
+            activeVaultMasterKey?.let { saveBiometricWrappedVmk(it) }
+        } else {
+            clearBiometricKey()
+        }
     }
 
     fun setAutoLockTimeout(timeoutMs: Long) {
@@ -276,6 +405,7 @@ class SessionManager(private val context: Context) {
      */
     @Synchronized
     fun wipeSecurityData() {
+        clearBiometricKey()
         prefs.edit().clear().apply()
         activeVaultMasterKey = null
         _isMasterPinSet.value = false

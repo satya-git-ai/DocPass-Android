@@ -184,7 +184,7 @@ fun AddEditDocumentDialog(
                     )
                 )
 
-                // Category Dropdown
+                // Category Selection
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
                         value = category,

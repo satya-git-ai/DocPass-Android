@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.EnhancedEncryption
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.LightMode
@@ -52,7 +53,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -87,8 +96,10 @@ fun DashboardScreen(
     passwordCount: Int,
     totalStorageBytes: Long,
     themeMode: ThemeMode,
+    isBiometricEnabled: Boolean = false,
     onToggleTheme: () -> Unit,
     onNavigateTab: (VaultTab) -> Unit,
+    onNavigateToSettings: () -> Unit = { onNavigateTab(VaultTab.SETTINGS) },
     onLockNow: () -> Unit,
     onAddDocument: () -> Unit,
     onAddPassword: () -> Unit,
@@ -113,7 +124,10 @@ fun DashboardScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(4.dp)
+                ) {
                     Image(
                         painter = painterResource(R.drawable.ic_docpass_logo),
                         contentDescription = "DocPass Logo",
@@ -533,26 +547,24 @@ fun DashboardScreen(
             }
         }
 
-        // Give Tip & Support Card (At End of Dashboard)
+        // Give Tip Button (Compact at End of Dashboard)
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable(onClick = onGiveTip)
                     .testTag("dashboard_give_tip_card"),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 border = androidx.compose.foundation.BorderStroke(
                     1.dp,
-                    Brush.horizontalGradient(
-                        listOf(Color(0xFFFF4081).copy(alpha = 0.4f), Color.Transparent)
-                    )
+                    Color(0xFFFF4081).copy(alpha = 0.25f)
                 )
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(14.dp),
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
@@ -560,34 +572,19 @@ fun DashboardScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.weight(1f, fill = false)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0xFFFF4081).copy(alpha = 0.15f)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Favorite,
-                                contentDescription = null,
-                                tint = Color(0xFFFF4081),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Give Tip",
-                                style = MaterialTheme.typography.titleSmall,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-                            Text(
-                                text = "Support development via UPI Scanner / App",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = null,
+                            tint = Color(0xFFFF4081),
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Enjoying DocPass? Give a tip",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
                     }
 
                     FilledTonalButton(
@@ -596,17 +593,87 @@ fun DashboardScreen(
                             containerColor = Color(0xFFFF4081).copy(alpha = 0.15f),
                             contentColor = Color(0xFFFF4081)
                         ),
-                        shape = RoundedCornerShape(10.dp),
-                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 4.dp),
-                        modifier = Modifier.testTag("dashboard_give_tip_btn")
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp),
+                        modifier = Modifier
+                            .height(30.dp)
+                            .testTag("dashboard_give_tip_btn")
                     ) {
-                        Icon(Icons.Filled.QrCodeScanner, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Filled.QrCodeScanner, contentDescription = null, modifier = Modifier.size(13.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = "Tip", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold)
+                        Text(text = "Tip", style = MaterialTheme.typography.labelSmall, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        // Biometric Lock Recommendation (shown only when biometric is turned off)
+        if (!isBiometricEnabled) {
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = onNavigateToSettings)
+                        .testTag("dashboard_biometric_recommendation_card"),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        CyanPrimary.copy(alpha = 0.35f)
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .background(CyanPrimary.copy(alpha = 0.15f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Fingerprint,
+                                    contentDescription = null,
+                                    tint = CyanPrimary,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "turn on biometric lock > settings",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Text(
+                                    text = "Tap to enable fingerprint or face unlock for faster access.",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Icon(
+                            imageVector = Icons.Filled.ArrowForward,
+                            contentDescription = "Go to Settings",
+                            tint = CyanPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }

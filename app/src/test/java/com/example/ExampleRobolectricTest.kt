@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import com.example.security.CryptoManager
 import com.example.security.PasswordGenerator
+import com.example.security.PasswordPolicy
 import com.example.security.SessionManager
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -69,6 +70,28 @@ class ExampleRobolectricTest {
 
         val strength = PasswordGenerator.estimateStrength(pwd24)
         assertTrue(strength == PasswordGenerator.Strength.STRONG || strength == PasswordGenerator.Strength.VERY_STRONG)
+
+        // Test easy to type memorable password (e.g. Apple@12 or Orange@42)
+        val memorable = PasswordGenerator.generateMemorable()
+        assertTrue(memorable.isNotEmpty())
+        assertTrue(memorable[0].isUpperCase())
+        assertTrue(memorable.any { it.isDigit() })
+        assertTrue(memorable.any { "!@#$%^&*()-_=+[]{}|;:,.<>?".contains(it) })
+    }
+
+    @Test
+    fun `password policy validates compliant memorable password and rejects common passwords`() {
+        val apple12Result = PasswordPolicy.validate("Apple@12")
+        assertTrue("Apple@12 is allowed as a compliant memorable password", apple12Result.isValid)
+
+        val pass123Result = PasswordPolicy.validate("Password123!")
+        assertFalse("Password123! must not be allowed", pass123Result.isValid)
+
+        val adminResult = PasswordPolicy.validate("Admin@123")
+        assertFalse("Admin@123 must not be allowed", adminResult.isValid)
+
+        val strongResult = PasswordPolicy.validate("Orange#84Solar!")
+        assertTrue("Strong compliant password should be valid", strongResult.isValid)
     }
 
     @Test
@@ -99,5 +122,12 @@ class ExampleRobolectricTest {
         val correctUnlock = sessionManager.unlockWithPin(testPassword)
         assertTrue(correctUnlock)
         assertFalse(sessionManager.isLocked.value)
+
+        // Biometric toggle state verification
+        assertFalse(sessionManager.biometricEnabled.value)
+        sessionManager.setBiometricEnabled(true)
+        assertTrue(sessionManager.biometricEnabled.value)
+        sessionManager.setBiometricEnabled(false)
+        assertFalse(sessionManager.biometricEnabled.value)
     }
 }

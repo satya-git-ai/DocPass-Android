@@ -248,7 +248,7 @@ fun PasswordGeneratorDialog(
 
                 if (isMemorableMode) {
                     Text(
-                        text = "Generates easy-to-type passwords like Apple@33, meeting all security requirements (letters, numbers, symbols).",
+                        text = "Generates easy to type memorable passwords (e.g. Orange@42), meeting all security requirements (letters, numbers, symbols).",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         lineHeight = 16.sp
